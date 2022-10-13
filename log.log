@@ -1,0 +1,49 @@
+13-Oct-22 09:44:13 - DEBUG - Starting app...
+13-Oct-22 09:44:13 - DEBUG - App started at 127.0.0.1 on port 5000
+13-Oct-22 09:44:13 - WARNING -  * Debugger is active!
+13-Oct-22 09:44:13 - INFO -  * Debugger PIN: 825-881-898
+13-Oct-22 09:44:16 - DEBUG - Running Query: SELECT * FROM users WHERE id = 1;
+13-Oct-22 09:44:17 - DEBUG - Running Query: SELECT * FROM breweries LEFT JOIN users ON breweries.poster_id = users.id LEFT JOIN users_go_to_breweries ON breweries.id = users_go_to_breweries.breweries_id ORDER BY breweries.id DESC;
+13-Oct-22 09:44:17 - INFO - 127.0.0.1 - - [13/Oct/2022 09:44:17] "GET /beers/new HTTP/1.1" 200 -
+13-Oct-22 09:44:17 - INFO - 127.0.0.1 - - [13/Oct/2022 09:44:17] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+13-Oct-22 09:44:17 - INFO - 127.0.0.1 - - [13/Oct/2022 09:44:17] "[36mGET /static/img/brewery.jpg HTTP/1.1[0m" 304 -
+13-Oct-22 09:46:54 - DEBUG - Running Query: SELECT * FROM users WHERE id = 1;
+13-Oct-22 09:46:54 - DEBUG - Running Query: SELECT * FROM breweries LEFT JOIN users ON breweries.poster_id = users.id LEFT JOIN users_go_to_breweries ON breweries.id = users_go_to_breweries.breweries_id ORDER BY breweries.id DESC;
+13-Oct-22 09:46:54 - INFO - 127.0.0.1 - - [13/Oct/2022 09:46:54] "GET /beers/new HTTP/1.1" 200 -
+13-Oct-22 09:46:54 - INFO - 127.0.0.1 - - [13/Oct/2022 09:46:54] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+13-Oct-22 09:46:54 - INFO - 127.0.0.1 - - [13/Oct/2022 09:46:54] "[36mGET /static/img/brewery.jpg HTTP/1.1[0m" 304 -
+13-Oct-22 09:48:25 - DEBUG - Running Query: SELECT * FROM users WHERE id = 1;
+13-Oct-22 09:48:26 - DEBUG - Running Query: SELECT * FROM breweries LEFT JOIN users ON breweries.poster_id = users.id LEFT JOIN users_go_to_breweries ON breweries.id = users_go_to_breweries.breweries_id ORDER BY breweries.id DESC;
+13-Oct-22 09:48:26 - INFO - 127.0.0.1 - - [13/Oct/2022 09:48:26] "GET /beers/new HTTP/1.1" 200 -
+13-Oct-22 09:48:26 - INFO - 127.0.0.1 - - [13/Oct/2022 09:48:26] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+13-Oct-22 09:48:26 - INFO - 127.0.0.1 - - [13/Oct/2022 09:48:26] "[36mGET /static/img/brewery.jpg HTTP/1.1[0m" 304 -
+13-Oct-22 09:50:32 - DEBUG - Running Query: SELECT * FROM users WHERE id = 1;
+13-Oct-22 09:50:33 - DEBUG - Running Query: SELECT * FROM breweries LEFT JOIN users ON breweries.poster_id = users.id LEFT JOIN users_go_to_breweries ON breweries.id = users_go_to_breweries.breweries_id ORDER BY breweries.id DESC;
+13-Oct-22 09:50:33 - INFO - 127.0.0.1 - - [13/Oct/2022 09:50:33] "GET /beers/new HTTP/1.1" 200 -
+13-Oct-22 09:50:33 - INFO - 127.0.0.1 - - [13/Oct/2022 09:50:33] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+13-Oct-22 09:50:33 - INFO - 127.0.0.1 - - [13/Oct/2022 09:50:33] "[36mGET /static/img/brewery.jpg HTTP/1.1[0m" 304 -
+13-Oct-22 09:50:52 - DEBUG - Running Query: SELECT * FROM users WHERE id = 1;
+13-Oct-22 09:50:52 - DEBUG - Running Query: SELECT * FROM breweries LEFT JOIN users ON breweries.poster_id = users.id LEFT JOIN users_go_to_breweries ON breweries.id = users_go_to_breweries.breweries_id ORDER BY breweries.id DESC;
+13-Oct-22 09:50:52 - INFO - 127.0.0.1 - - [13/Oct/2022 09:50:52] "GET /beers/new HTTP/1.1" 200 -
+13-Oct-22 09:50:52 - INFO - 127.0.0.1 - - [13/Oct/2022 09:50:52] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+13-Oct-22 09:50:52 - INFO - 127.0.0.1 - - [13/Oct/2022 09:50:52] "[36mGET /static/img/brewery.jpg HTTP/1.1[0m" 304 -
+13-Oct-22 09:51:01 - DEBUG - Running Query: SELECT * FROM users WHERE id = 1;
+13-Oct-22 09:51:01 - DEBUG - Running Query: SELECT * FROM breweries LEFT JOIN users ON breweries.poster_id = users.id LEFT JOIN users_go_to_breweries ON breweries.id = users_go_to_breweries.breweries_id ORDER BY breweries.id DESC;
+13-Oct-22 09:51:01 - INFO - 127.0.0.1 - - [13/Oct/2022 09:51:01] "GET /beers/new HTTP/1.1" 200 -
+13-Oct-22 09:51:01 - INFO - 127.0.0.1 - - [13/Oct/2022 09:51:01] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+13-Oct-22 09:51:01 - INFO - 127.0.0.1 - - [13/Oct/2022 09:51:01] "[36mGET /static/img/brewery.jpg HTTP/1.1[0m" 304 -
+13-Oct-22 09:55:26 - DEBUG - Running Query: SELECT * FROM users WHERE id = 1;
+13-Oct-22 09:55:27 - DEBUG - Running Query: SELECT * FROM breweries LEFT JOIN users ON breweries.poster_id = users.id LEFT JOIN users_go_to_breweries ON breweries.id = users_go_to_breweries.breweries_id ORDER BY breweries.id DESC;
+13-Oct-22 09:55:27 - INFO - 127.0.0.1 - - [13/Oct/2022 09:55:27] "GET /beers/new HTTP/1.1" 200 -
+13-Oct-22 09:55:27 - INFO - 127.0.0.1 - - [13/Oct/2022 09:55:27] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+13-Oct-22 09:55:27 - INFO - 127.0.0.1 - - [13/Oct/2022 09:55:27] "[36mGET /static/img/brewery.jpg HTTP/1.1[0m" 304 -
+13-Oct-22 09:57:04 - DEBUG - Running Query: SELECT * FROM users WHERE id = 1;
+13-Oct-22 09:57:05 - DEBUG - Running Query: SELECT * FROM breweries LEFT JOIN users ON breweries.poster_id = users.id LEFT JOIN users_go_to_breweries ON breweries.id = users_go_to_breweries.breweries_id ORDER BY breweries.id DESC;
+13-Oct-22 09:57:05 - INFO - 127.0.0.1 - - [13/Oct/2022 09:57:05] "GET /beers/new HTTP/1.1" 200 -
+13-Oct-22 09:57:05 - INFO - 127.0.0.1 - - [13/Oct/2022 09:57:05] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+13-Oct-22 09:57:05 - INFO - 127.0.0.1 - - [13/Oct/2022 09:57:05] "[36mGET /static/img/brewery.jpg HTTP/1.1[0m" 304 -
+13-Oct-22 09:57:57 - DEBUG - Running Query: SELECT * FROM users WHERE id = 1;
+13-Oct-22 09:57:58 - DEBUG - Running Query: SELECT * FROM breweries LEFT JOIN users ON breweries.poster_id = users.id LEFT JOIN users_go_to_breweries ON breweries.id = users_go_to_breweries.breweries_id ORDER BY breweries.id DESC;
+13-Oct-22 09:57:58 - INFO - 127.0.0.1 - - [13/Oct/2022 09:57:58] "GET /beers/new HTTP/1.1" 200 -
+13-Oct-22 09:57:58 - INFO - 127.0.0.1 - - [13/Oct/2022 09:57:58] "[36mGET /static/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+13-Oct-22 09:57:58 - INFO - 127.0.0.1 - - [13/Oct/2022 09:57:58] "[36mGET /static/img/brewery.jpg HTTP/1.1[0m" 304 -

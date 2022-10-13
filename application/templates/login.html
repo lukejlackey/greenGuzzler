@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css')}}">
+</head>
+
+<body>
+    <div class="bg-dark d-flex flex-column" style="min-height: 100vh;">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
+            <a class="navbar-brand fs-1 text-light mx-3" href="/">
+                <span class="text-success">G</span>reen
+                <span class="text-success">G</span>uzzler
+            </a>
+            <button class="navbar-toggler bg-success mx-3" type="button" data-toggle="collapse"
+                data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse text-end me-3" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Beers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Breweries</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="p-3 d-flex flex-column align-items-center justify-content-start" style="background-image: url(../static/img/green-waves.png); 
+            background-size:cover;
+            min-height:75vh;">
+            <div class="container text-center text-light" style="text-shadow: 0 0 1rem white;">
+                <h3 class="fw-bold"><em>"{{ quote.content }}"</em></h3>
+                <h3 class="fs-5"> - {{quote.author}} - </h3>
+            </div>
+            <div class="container d-flex gap-4 my-3 align-items-start text-light">
+                <div class="container rounded shadow-sm" style="background-color: rgba(0, 0, 0, 0.411);">
+                    <h2 class="display-5 text-light">Register</h2>
+                    <form action="/register" method="POST">
+                        <label class="form-label" for="first_name">First Name:</label>
+                        <input class="form-control" type="text" name="first_name" id="first_name">
+                        {% for msg in get_flashed_messages( category_filter = ['error_reg_fn'] ) %}
+                        <p class="text-warning">*{{ msg }}</p>
+                        {% endfor %}
+                        <label class="form-label" for="last_name">Last Name:</label>
+                        <input class="form-control" type="text" name="last_name" id="last_name">
+                        {% for msg in get_flashed_messages( category_filter = ['error_reg_ln'] ) %}
+                        <p class="text-warning">*{{ msg }}</p>
+                        {% endfor %}
+                        <label class="form-label" for="email">Email:</label>
+                        <input class="form-control" type="text" name="email" id="email">
+                        {% for msg in get_flashed_messages( category_filter = ['error_reg_email'] ) %}
+                        <p class="text-warning">*{{ msg }}</p>
+                        {% endfor %}
+                        <label class="form-label" for="password">Password:</label>
+                        <input class="form-control" type="password" name="password" id="password">
+                        {% for msg in get_flashed_messages( category_filter = ['error_reg_pw'] ) %}
+                        <p class="text-warning">*{{ msg }}</p>
+                        {% endfor %}
+                        <label class="form-label" for="confirm_pw">Confirm Password:</label>
+                        <input class="form-control" type="password" name="confirm_pw" id="confirm_pw">
+                        {% for msg in get_flashed_messages( category_filter = ['error_reg_conf_pw'] ) %}
+                        <p class="text-warning">*{{ msg }}</p>
+                        {% endfor %}
+                        <input class="btn btn-success text-light my-4" type="submit" value="Register">
+                    </form>
+                </div>
+                <div class="container rounded shadow-sm" style="background-color: rgba(0, 0, 0, 0.411);">
+                    <h2 class="display-5 text-light">Login</h2>
+                    <form action="/login/process" method="POST">
+                        <label class="form-label" for="email">Email:</label>
+                        <input class="form-control" type="text" name="email" id="email">
+                        {% for msg in get_flashed_messages( category_filter = ['error_login_email'] ) %}
+                        <p class="text-warning">*{{ msg }}</p>
+                        {% endfor %}
+                        <label class="form-label" for="password">Password:</label>
+                        <input class="form-control" type="password" name="password" id="password">
+                        {% for msg in get_flashed_messages( category_filter = ['error_login_pw'] ) %}
+                        <p class="text-warning">*{{ msg }}</p>
+                        {% endfor %}
+                        {% for msg in get_flashed_messages( category_filter = ['error_login_inv_creds'] ) %}
+                        <p class="text-danger">*{{ msg }}</p>
+                        {% endfor %}
+                        <input class="btn btn-success my-4" type="submit" value="Login">
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center align-items-center">
+            <p class="text-light">~ Quotes provided by <a href="https://github.com/lukePeavey/quotable"
+                    target="_blank">Quotable API</a>
+                ~
+            </p>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
