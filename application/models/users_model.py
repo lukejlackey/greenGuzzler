@@ -12,7 +12,7 @@ class User:
     TABLE_NAME = 'users'
     
     # User attributes
-    ATTR_TAGS = ['first_name','last_name','email','password']
+    ATTR_TAGS = ['first_name','last_name','email','password', 'avatar']
     DEFAULT_AVATAR = 'default.png'
     
     # Validation params
@@ -98,8 +98,7 @@ class User:
     def create_new_user(cls, user_info):
         user_data = {
             **user_info,
-            'password': bcrypt.generate_password_hash(user_info['password']),
-            'avatar': cls.DEFAULT_AVATAR
+            'password': bcrypt.generate_password_hash(user_info['password'])
         }
         query = f"INSERT INTO {cls.TABLE_NAME}( {', '.join(cls.ATTR_TAGS)} ) "
         cols = []
@@ -121,7 +120,7 @@ class User:
             flash('An account with this email has already been registered. Please try another.',
                   'error_reg_email')
             return False
-        return cls.create_new_user(regist_info)
+        return cls.create_new_user({**regist_info,'avatar': cls.DEFAULT_AVATAR})
 
     # Edit existing user
     @classmethod

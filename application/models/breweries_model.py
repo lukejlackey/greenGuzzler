@@ -12,15 +12,25 @@ class Brewery:
     ATTR_TAGS = ['name', 'type', 'address', 'state', 'city', 'zip', 'poster_id']
     MTM_IDS = ['users_id','breweries_id']
     NAME_LENGTH = 1
+    ZIP_MIN = 501
+    ZIP_MAX = 99950
     BREWERY_TYPES = ['Nano', 'Micro', 'Pub', 'Regional', 'Regional Craft', 'Large']
     
     def __init__(self, data) -> None:
         self.id = data['id']
         for tag in self.ATTR_TAGS:
-            if tag is 'type':
+            if tag == 'type':
                 setattr(self, tag, self.BREWERY_TYPES[data[tag]])
             else:
                 setattr(self, tag, data[tag])
+        if 'poster_first_name' in data:
+            setattr(self, 'poster_first_name', data['poster_first_name'])
+        if 'poster_last_name' in data:
+            setattr(self, 'poster_last_name', data['poster_last_name'])
+        if 'poster_avatar' in data:
+            setattr(self, 'poster_avatar', data['poster_avatar'])
+        if 'visitors' in data:
+            setattr(self, 'visitors', data['visitors'])
 
     @classmethod
     def get_all_breweries(cls):
@@ -48,14 +58,13 @@ class Brewery:
 
     @classmethod
     def get_brewery(cls, id):
-        query = f"SELECT {cls.TABLE_NAME}.*, {cls.OTM_TABLE_NAME}.*, poster.first_name, poster.last_name, poster.id, {cls.MTM_TABLE_NAME}.users_id AS visitors FROM {cls.TABLE_NAME} "
+        query = f"SELECT {cls.TABLE_NAME}.*, poster.first_name AS poster_first_name, poster.last_name AS poster_last_name, poster.avatar AS poster_avatar, poster.id AS poster_id, {cls.MTM_TABLE_NAME}.users_id AS visitors FROM {cls.TABLE_NAME} "
         query += f"LEFT JOIN {User.TABLE_NAME} AS poster ON {cls.TABLE_NAME}.poster_id = poster.id "
         query += f'LEFT JOIN {cls.MTM_TABLE_NAME} ON {cls.TABLE_NAME}.id = {cls.MTM_TABLE_NAME}.breweries_id '
         query += f'LEFT JOIN {User.TABLE_NAME} ON {cls.MTM_TABLE_NAME}.users_id = {User.TABLE_NAME}.id '
-        query += f'LEFT JOIN {cls.BEERS_MTM_TABLE_NAME} ON {cls.OTM_TABLE_NAME}.id = {cls.BEERS_MTM_TABLE_NAME}.beers_id '
         query += f'WHERE {cls.TABLE_NAME}.id = {id};'
         rslt = connectToMySQL(DATABASE).query_db(query)
-        print(rslt)
+        print('RSLT:',rslt)
         return cls(rslt[0]) if rslt else False
 
     @classmethod
@@ -64,7 +73,17 @@ class Brewery:
             'name' : 
                 (f'Your brewery name must be at least {cls.NAME_LENGTH} characters long.', 
                 'error_create_brewery_name',
-                len(brewery_info['name']) >= cls.NAME_LENGTH)
+                len(brewery_info['name']) >= cls.NAME_LENGTH),
+            'address' : 
+                (f'Address is required.', 
+                'error_create_brewery_address'),
+            'city' : 
+                (f'City is required.', 
+                'error_create_brewery_city'),
+            'zip' : 
+                (f'Please enter a valid zip.', 
+                'error_create_brewery_zip',
+                cls.ZIP_MIN <= int(brewery_info['zip'] if brewery_info['zip'] else 0) <= cls.ZIP_MAX),
         }
         return cls.validate_data(brewery_info, info_dict)
 
@@ -77,6 +96,17 @@ class Brewery:
         cols = ', '.join(cols)
         query += f'VALUES( {cols} );'
         rslt = connectToMySQL(DATABASE).query_db(query, brewery_info)
+        return rslt
+    
+    @classmethod
+    def visit_brewery(cls, visit_info):
+        query = f"INSERT INTO {cls.MTM_TABLE_NAME}( {', '.join(cls.MTM_IDS)} ) "
+        cols = []
+        for tag in cls.MTM_IDS:
+            cols.append( f'%({tag})s' )
+        cols = ', '.join(cols)
+        query += f'VALUES( {cols} );'
+        rslt = connectToMySQL(DATABASE).query_db(query, visit_info)
         return rslt
 
     @classmethod

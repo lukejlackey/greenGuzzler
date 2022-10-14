@@ -15,8 +15,6 @@ def show_all_beer():
 
 @app.route('/beers/<int:id>')
 def show_beer(id):
-    if 'logged_user' not in session:
-        return redirect('/login')
     current_user = User.get_user(id=session['logged_user']) if 'logged_user' in session else False
     current_beer = Beer.get_beer(id)
     return render_template('beer.html', user=current_user, beer=current_beer)
@@ -40,9 +38,26 @@ def create_new_beer():
         }
         new_beer = Beer.create_new_beer(new_beer_data)
         if new_beer:
+            new_beer_data = {
+                **new_beer_data,
+                'users_id' : session['logged_user'],
+                'beers_id' : new_beer
+            }
             new_rating = Beer.rate_beer(new_beer_data)
         return redirect(f"/")
     return redirect('/beers/new')
+
+@app.route('/beers/<int:id>/rate', methods=['POST'])
+def rate_beer(id):
+    if 'logged_user' not in session:
+        return redirect('/login')
+    new_beer_data = {
+        **request.form,
+        'users_id' : session['logged_user'],
+        'beers_id' : id
+    }
+    new_rating = Beer.rate_beer(new_beer_data)
+    return redirect(f"/beers/{id}")
 
 @app.route('/beers/edit/<int:id>')
 def display_edit_beer(id):

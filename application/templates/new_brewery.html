@@ -9,8 +9,10 @@
     <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css')}}">
 </head>
 
-<body>
-    <div class="bg-dark d-flex flex-column" style="min-height: 100vh;">
+<body style="background-image: url(../static/img/brewery.jpg); 
+background-size:cover;
+min-height:75vh;">
+    <div class="d-flex flex-column" style="min-height: 100vh;">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
             <a class="navbar-brand fs-1 text-light mx-3" href="/">
                 <span class="text-success">G</span>reen
@@ -44,11 +46,9 @@
                 </ul>
             </div>
         </nav>
-        <div class="p-3 d-flex flex-column align-items-center justify-content-start" style="background-image: url(../static/img/brewery.jpg); 
-            background-size:cover;
-            min-height:75vh;">
+        <div class="p-3 d-flex flex-column align-items-center justify-content-start">
             <div class="container text-center text-light" style="text-shadow: 0 0 1rem white;">
-                <h3 class="display-3">Add a Beer</h3>
+                <h3 class="display-3">Add a Brewery</h3>
             </div>
             <form class="container d-flex flex-column gap-4 my-3 align-items-start" action="/breweries/new/create"
                 method="POST" style="color: #45992e;">
@@ -58,7 +58,7 @@
                         <div class="form-group">
                             <label class="form-label" for="name">Name:</label>
                             <input class="form-control" type="text" name="name" id="name">
-                            {% for msg in get_flashed_messages( category_filter = ['error_reg_fn'] ) %}
+                            {% for msg in get_flashed_messages( category_filter = ['error_create_brewery_name'] ) %}
                             <p class="text-warning">*{{ msg }}</p>
                             {% endfor %}
                         </div>
@@ -69,9 +69,6 @@
                                 <option value="{{loop.index0}}">{{ type }}</option>
                                 {% endfor %}
                             </select>
-                            {% for msg in get_flashed_messages( category_filter = ['error_reg_ln'] ) %}
-                            <p class="text-warning">*{{ msg }}</p>
-                            {% endfor %}
                         </div>
                     </div>
                     <div class="container bg-light rounded shadow-sm pb-3" style="color: #45992e;">
@@ -79,7 +76,7 @@
                         <div class="form-group">
                             <label class="form-label" for="address">Street Address:</label>
                             <input class="form-control" type="text" name="address" id="address">
-                            {% for msg in get_flashed_messages( category_filter = ['error_login_email'] ) %}
+                            {% for msg in get_flashed_messages( category_filter = ['error_create_brewery_address'] ) %}
                             <p class="text-warning">*{{ msg }}</p>
                             {% endfor %}
                         </div>
@@ -138,21 +135,19 @@
                                 <option value="WI">Wisconsin</option>
                                 <option value="WY">Wyoming</option>
                             </select>
-                            {% for msg in get_flashed_messages( category_filter = ['error_login_pw'] ) %}
-                            <p class="text-warning">*{{ msg }}</p>
-                            {% endfor %}
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="city">City:</label>
                             <input class="form-control" type="text" name="city" id="city">
-                            {% for msg in get_flashed_messages( category_filter = ['error_login_pw'] ) %}
+                            {% for msg in get_flashed_messages( category_filter = ['error_create_brewery_city'] ) %}
                             <p class="text-warning">*{{ msg }}</p>
                             {% endfor %}
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="zip">Zip:</label>
-                            <input class="form-control" type="text" name="zip" id="zip" pattern="[0-9]{5}">
-                            {% for msg in get_flashed_messages( category_filter = ['error_login_pw'] ) %}
+                            <input class="form-control" type="number" name="zip" id="zip" maxlength="5" step="1"
+                                min="00501" max="99950" value="00501">
+                            {% for msg in get_flashed_messages( category_filter = ['error_create_brewery_zip'] ) %}
                             <p class="text-warning">*{{ msg }}</p>
                             {% endfor %}
                         </div>

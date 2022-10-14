@@ -1,4 +1,5 @@
 from application import app
+from application.models.beers_model import Beer
 from application.models.users_model import User
 from application.models.breweries_model import Brewery
 from flask import render_template, redirect, request, session
@@ -13,22 +14,21 @@ def show_all_brewery():
     return render_template('breweries.html', user=current_user, breweries=sorted_breweries)
 
 @app.route('/breweries/<int:id>')
-def showBrewery(id):
-    if 'logged_user' not in session:
-        return redirect('/login')
+def show_brewery(id):
     current_user = User.get_user(id=session['logged_user']) if 'logged_user' in session else False
     current_brewery = Brewery.get_brewery(id)
-    return render_template('brewery.html', user=current_user, brewery=current_brewery)
+    beers = Beer.get_all_beers_by_brewery(id)
+    return render_template('brewery.html', user=current_user, brewery=current_brewery, beers=beers)
 
 @app.route('/breweries/new')
-def createBrewery():
+def create_brewery():
     if 'logged_user' not in session:
         return redirect('/login')
     current_user = User.get_user(id=session['logged_user'])
     return render_template('new_brewery.html', user=current_user, types=Brewery.BREWERY_TYPES)
 
 @app.route('/breweries/new/create', methods=['POST'])
-def createNewBrewery():
+def create_new_brewery():
     if 'logged_user' not in session:
         return redirect('/login')
     if Brewery.validate_create_brewery(request.form):
@@ -37,8 +37,19 @@ def createNewBrewery():
             'poster_id' : session['logged_user']
         }
         new_brewery = Brewery.create_new_brewery(new_brewery_data)
-        return redirect(f"/users/dashboard/{session['logged_user']}")
+        return redirect(f"/breweries/{new_brewery}")
     return redirect('/breweries/new')
+
+@app.route('/breweries/<int:id>/visit', methods=['POST'])
+def visit_brewery(id):
+    if 'logged_user' not in session:
+        return redirect('/login')
+    visit_data = {
+        'breweries_id': id,
+        'users_id' : session['logged_user']
+    }
+    new_visit = Brewery.visit_brewery(visit_data)
+    return redirect(f"/breweries/{id}")
 
 @app.route('/breweries/edit/<int:id>')
 def displayEditPage(id):
