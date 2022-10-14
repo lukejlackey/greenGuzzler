@@ -40,12 +40,12 @@ class Beer:
             setattr(self, 'val', round(data['val']))
 
     @classmethod
-    def get_all_beers(cls):
+    def get_all_beers(cls, sort_by=None, desc=True):
         query = f"SELECT {cls.TABLE_NAME}.*, breweries.name as brewery, AVG(taste) AS taste, AVG(cost) AS cost, AVG(val) AS val FROM {cls.TABLE_NAME} "      
         query += f'LEFT JOIN breweries ON {cls.TABLE_NAME}.breweries_id = breweries.id '
         query += f'LEFT JOIN {cls.MTM_TABLE_NAME} ON {cls.TABLE_NAME}.id = {cls.MTM_TABLE_NAME}.beers_id '
         query += f'GROUP BY {cls.TABLE_NAME}.id '
-        query += f'ORDER BY {cls.TABLE_NAME}.id DESC;'
+        query += f"ORDER BY {f'{cls.TABLE_NAME}.id' if sort_by is None else sort_by} {'DESC' if desc else ''};"
         rslt = connectToMySQL(DATABASE).query_db(query)
         if not rslt:
             return False

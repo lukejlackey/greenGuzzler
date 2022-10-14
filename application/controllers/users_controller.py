@@ -11,9 +11,12 @@ def invalid_creds():
     flash('Invalid credentials', 'error_login_inv_creds')
     return redirect('/login')
 
+def check_user():
+    return User.get_user(id=session['logged_user']) if 'logged_user' in session else False
+
 @app.route('/', methods=['GET'])
 def show_home():
-    user = None if 'logged_user' not in session else User.get_user(id=session['logged_user'])
+    user = check_user()
     all_breweries = Brewery.get_all_breweries()
     all_beers = Beer.get_all_beers()
     return render_template('index.html', user=user, breweries=all_breweries, beers=all_beers)

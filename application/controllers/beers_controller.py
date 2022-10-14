@@ -4,90 +4,77 @@ from application.models.users_model import User
 from application.models.beers_model import Beer
 from flask import render_template, redirect, request, session
 
+def check_user():
+    return User.get_user(id=session['logged_user']) if 'logged_user' in session else False
+
 @app.route('/beers')
 def show_all_beer():
-    current_user = User.get_user(id=session['logged_user']) if 'logged_user' in session else False
-    all_beers = Beer.get_all_beers()
-    sorted_beers = []
-    for t in Beer.BEER_TYPES:
-        sorted_beers.append([beer for beer in all_beers if beer.type == t])
+    current_user = check_user()
+    sorted_beers = [Beer.get_all_beers('taste'), Beer.get_all_beers('val'), Beer.get_all_beers('cost', False), Beer.get_all_beers()]
     return render_template('beers.html', user=current_user, beers=sorted_beers)
 
-@app.route('/beers/<int:id>')
+@app.route('/beers/<int:id>', methods=['GET','POST'])
 def show_beer(id):
-    current_user = User.get_user(id=session['logged_user']) if 'logged_user' in session else False
-    current_beer = Beer.get_beer(id)
-    return render_template('beer.html', user=current_user, beer=current_beer)
-
-@app.route('/beers/new')
-def create_beer():
-    if 'logged_user' not in session:
-        return redirect('/login')
-    current_user = User.get_user(id=session['logged_user'])
-    breweries = Brewery.get_all_breweries()
-    return render_template('new_beer.html', user=current_user, breweries=breweries)
-
-@app.route('/beers/new/create', methods=['POST'])
-def create_new_beer():
-    if 'logged_user' not in session:
-        return redirect('/login')
-    if Beer.validate_create_beer(request.form):
+    current_user = check_user()
+    if request.method == 'GET':
+        current_beer = Beer.get_beer(id)
+        return render_template('beer.html', user=current_user, beer=current_beer)
+    elif request.method == 'POST':
+        if not current_user:
+            return redirect('/login')
         new_beer_data = {
             **request.form,
-            'poster_id' : session['logged_user']
+            'users_id' : session['logged_user'],
+            'beers_id' : id
         }
-        new_beer = Beer.create_new_beer(new_beer_data)
-        if new_beer:
+        new_rating = Beer.rate_beer(new_beer_data)
+        return redirect(f"/beers/{id}")
+
+@app.route('/beers/new', methods=['GET','POST'])
+def create_beer():
+    current_user = check_user()
+    if not current_user: 
+        return redirect('/login')
+    if request.method == 'GET':
+        breweries = Brewery.get_all_breweries()
+        return render_template('new_beer.html', user=current_user, breweries=breweries)
+    elif request.method == 'POST':
+        if Beer.validate_create_beer(request.form):
             new_beer_data = {
-                **new_beer_data,
-                'users_id' : session['logged_user'],
-                'beers_id' : new_beer
+                **request.form,
+                'poster_id' : session['logged_user']
             }
-            new_rating = Beer.rate_beer(new_beer_data)
-        return redirect(f"/")
-    return redirect('/beers/new')
+            new_beer = Beer.create_new_beer(new_beer_data)
+            if new_beer:
+                new_beer_data = {
+                    **new_beer_data,
+                    'users_id' : session['logged_user'],
+                    'beers_id' : new_beer
+                }
+                new_rating = Beer.rate_beer(new_beer_data)
+            return redirect("/")
+        return redirect('/beers/new')
 
-@app.route('/beers/<int:id>/rate', methods=['POST'])
-def rate_beer(id):
-    if 'logged_user' not in session:
-        return redirect('/login')
-    new_beer_data = {
-        **request.form,
-        'users_id' : session['logged_user'],
-        'beers_id' : id
-    }
-    new_rating = Beer.rate_beer(new_beer_data)
-    return redirect(f"/beers/{id}")
-
-@app.route('/beers/edit/<int:id>')
-def display_edit_beer(id):
-    if 'logged_user' not in session:
-        return redirect('/login')
-    current_user = User.get_user(id=session['logged_user'])
-    beer = Beer.get_beer(id)
-    if session['logged_user'] == beer.user_id:
-        return render_template('edit_beer.html', user=current_user, beer=beer)
-    return redirect(f"/users/dashboard/{session['logged_user']}")
-
-@app.route('/beers/edit/<int:id>/process', methods=['POST'])
+@app.route('/beers/<int:id>/edit', methods=['GET','POST', 'DELETE'])
 def edit_beer(id):
-    if 'logged_user' not in session:
+    current_user = check_user()
+    if not current_user:
         return redirect('/login')
-    if session['logged_user'] == Beer.get_beer(id).poster_id:
+    beer = Beer.get_beer(id)
+    if current_user.id != beer.poster_id:
+        return redirect(f"/")
+    if request.method == 'GET':
+        return render_template('edit_beer.html', user=current_user, beer=beer)
+    elif request.method == 'POST':
         new_info = {
             **request.form,
             'id' : id,
-            'poster_id' : session['logged_user']
+            'poster_id' : current_user.id
         }
         if not Beer.validate_create_beer(new_info):
             return redirect(f'/beers/edit/{id}')
         rslt = Beer.update_beer(new_info)
-    return redirect(f"/users/dashboard/{session['logged_user']}")
-
-@app.route('/beers/destroy/<int:id>')
-def delete_beer(id):
-    if 'logged_user' not in session:
-        return redirect('/login')
-    if session['logged_user'] == Beer.get_beer(id).user_id:
+        return redirect(f"/beers/{id}")
+    elif request.method == 'DELETE':
         rslt = Beer.delete_beer(id)
-    return redirect(f"/users/account/{session['logged_user']}")
+        return redirect("/")
