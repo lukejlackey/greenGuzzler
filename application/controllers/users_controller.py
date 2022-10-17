@@ -14,37 +14,16 @@ def invalid_creds():
 def check_user():
     return User.get_user(id=session['logged_user']) if 'logged_user' in session else False
 
+def allowed_file(filename):
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 @app.route('/', methods=['GET'])
-def show_home():
+def home():
     user = check_user()
     all_breweries = Brewery.get_all_breweries()
     all_beers = Beer.get_all_beers()
     return render_template('index.html', user=user, breweries=all_breweries, beers=all_beers)
-
-@app.route('/login', methods=['GET'])
-def show_login():
-    return render_template('login.html', quote=Quote()) if 'logged_user' not in session else redirect('/')
-
-@app.route('/login/process', methods=['POST'])
-def process_login():
-    if 'logged_user' in session:
-        return redirect('/')
-    user = User.validate_login(request.form)
-    if not user:
-        return invalid_creds()
-    session['logged_user'] = user.id
-    return redirect('/')
-
-@app.route('/register', methods=['POST'])
-def process_registration():
-    if 'logged_user' in session:
-        return redirect('/')
-    if User.validate_register(request.form):
-        new_user = User.register_new_user(dict(request.form))
-        if new_user:
-            session['logged_user'] = new_user.id
-            return redirect(f'/users/{new_user.id}/dashboard')
-    return redirect('/login')
 
 @app.route('/users/<int:id>/dashboard')
 def show_dashboard(id):
@@ -56,47 +35,53 @@ def show_dashboard(id):
     all_items = Brewery.get_all_breweries()
     return render_template('dashboard.html', user=current_user, items=all_items)
 
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-@app.route('/users/<int:id>/account/avatar', methods=['POST'])
-def upload_file(id):
-    if 'logged_user' not in session:
-        return redirect('/login')
-    if id != session['logged_user']:
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if check_user():
         return redirect('/')
-    if 'avatar' not in request.files:
-        flash('No file part', 'error_avatar_msg')
-        return redirect(f'/users/{id}/account')
-    file = request.files['avatar']
-    if file.filename == '':
-        flash('No selected file', 'error_avatar_msg')
-        return redirect(f'/users/{id}/account')
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], f'{id}-{filename}')
-        file.save(filepath)
-        User.edit_avatar(f"'{id}-{filename}'", id)
-    return redirect(f'/users/{id}/account')
+    if request.method == 'GET':
+        return render_template('login.html', quote=Quote())
+    elif request.method == 'POST':
+        if 'first_name' in request.form:
+            if User.validate_register(request.form):
+                new_user = User.register_new_user(dict(request.form))
+                if new_user:
+                    session['logged_user'] = new_user.id
+                    return redirect(f'/users/{new_user.id}/dashboard')
+        else:
+            user = User.validate_login(request.form)
+            if not user:
+                return invalid_creds()
+            session['logged_user'] = user.id
+            return redirect('/')
+    return redirect('/login')
 
-@app.route('/users/<int:id>/account', methods=['GET'])
-def view_account(id):
-    if 'logged_user' not in session:
+@app.route('/users/<int:id>/account', methods=['GET', 'PUT'])
+def account(id):
+    current_user = check_user()
+    if not current_user:
         return redirect('/login')
-    if id != session['logged_user']:
+    if id != current_user.id:
         return redirect('/')
-    current_user = User.get_user(id=id)
-    return render_template('account.html', user=current_user)
-
-@app.route('/users/<int:id>/account/edit', methods=['POST'])
-def edit_account(id):
-    if 'logged_user' not in session:
-        return redirect('/login')
-    if id != session['logged_user']:
-        return redirect('/login')
-    updated_user = User.edit_user(request.form, id)
-    return redirect(f'/users/{id}/account')
+    if request.method == 'GET':
+        return render_template('account.html', user=current_user)
+    elif request.method == 'POST':
+        if 'avatar' in request.form:
+            if 'avatar' not in request.files:
+                flash('No file part', 'error_avatar_msg')
+                return redirect(f'/users/{id}/account')
+            file = request.files['avatar']
+            if file.filename == '':
+                flash('No selected file', 'error_avatar_msg')
+                return redirect(f'/users/{id}/account')
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], f'{id}-{filename}')
+                file.save(filepath)
+                User.edit_avatar(f"'{id}-{filename}'", id)
+        else:
+            updated_user = User.edit_user(request.form, id)
+        return redirect(f'/users/{id}/account')
 
 @app.route('/logout')
 def logout():
