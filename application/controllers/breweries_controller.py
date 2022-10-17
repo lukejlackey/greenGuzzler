@@ -2,10 +2,8 @@ from application import app
 from application.models.beers_model import Beer
 from application.models.users_model import User
 from application.models.breweries_model import Brewery
+from application.controllers.controller_functions import check_user
 from flask import render_template, redirect, request, session
-
-def check_user():
-    return User.get_user(id=session['logged_user']) if 'logged_user' in session else False
 
 @app.route('/breweries')
 def show_all_breweries():

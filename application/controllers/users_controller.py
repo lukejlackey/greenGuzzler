@@ -1,22 +1,12 @@
-from application import app, ALLOWED_EXTENSIONS
 import os
+from application import app
 from application.models.beers_model import Beer
 from application.models.breweries_model import Brewery
 from application.models.users_model import User
 from application.models.quote_model import Quote
 from flask import render_template, redirect, request, session, flash
+from application.controllers.controller_functions import check_user, allowed_file
 from werkzeug.utils import secure_filename
-
-def invalid_creds():
-    flash('Invalid credentials', 'error_login_inv_creds')
-    return redirect('/login')
-
-def check_user():
-    return User.get_user(id=session['logged_user']) if 'logged_user' in session else False
-
-def allowed_file(filename):
-    return '.' in filename and \
-        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/', methods=['GET'])
 def home():
@@ -51,7 +41,8 @@ def login():
         else:
             user = User.validate_login(request.form)
             if not user:
-                return invalid_creds()
+                flash('Invalid credentials', 'error_login_inv_creds')
+                return redirect('/login')
             session['logged_user'] = user.id
             return redirect('/')
     return redirect('/login')
