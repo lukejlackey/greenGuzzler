@@ -7,8 +7,25 @@ from flask import render_template, redirect, request, session
 @app.route('/beers')
 def show_all_beer():
     current_user = check_user()
-    sorted_beers = [Beer.get_all_beers('taste'), Beer.get_all_beers('val'), Beer.get_all_beers('cost', False), Beer.get_all_beers()]
-    return render_template('beers.html', user=current_user, beers=sorted_beers)
+    beers_dict = {
+        'taste' : {
+            'title' : 'Highest Taste Rating',
+            'beers' : Beer.get_all_beers('taste')
+        },
+        'val' : {
+            'title' : 'Highest Value Rating',
+            'beers' : Beer.get_all_beers('val')
+        },
+        'cost' : {
+            'title' : 'Cheapest',
+            'beers' : Beer.get_all_beers('cost', desc=False)
+        },
+        'new' : {
+            'title' : 'Newest',
+            'beers' : Beer.get_all_beers()
+        }
+    }
+    return render_template('beers.html', user=current_user, beers_dict=beers_dict)
 
 @app.route('/beers/<int:id>', methods=['GET','POST'])
 def show_beer(id):

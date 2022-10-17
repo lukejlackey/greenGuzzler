@@ -9,10 +9,33 @@ from flask import render_template, redirect, request, session
 def show_all_breweries():
     current_user = check_user()
     all_breweries = Brewery.get_all_breweries()
-    sorted_breweries = []
-    for t in Brewery.BREWERY_TYPES:
-        sorted_breweries.append([brewery for brewery in all_breweries if brewery.type == t])
-    return render_template('breweries.html', user=current_user, breweries=sorted_breweries)
+    breweries_dict = {
+        'nano' : {
+            'title' : 'Nanobreweries',
+            'breweries' : [brewery for brewery in all_breweries if brewery.type == 'Nano']
+        },
+        'micro' : {
+            'title' : 'MicroBreweries',
+            'breweries' : [brewery for brewery in all_breweries if brewery.type == 'Micro']
+        },
+        'pub' : {
+            'title' : 'Brewpubs',
+            'breweries' : [brewery for brewery in all_breweries if brewery.type == 'Pub']
+        },
+        'regional' : {
+            'title' : 'Regional',
+            'breweries' : [brewery for brewery in all_breweries if brewery.type == 'Regional']
+        },
+        'regional_craft' : {
+            'title' : 'Regional Craft',
+            'breweries' : [brewery for brewery in all_breweries if brewery.type == 'Regional Craft']
+        },
+        'large' : {
+            'title' : 'Large',
+            'breweries' : [brewery for brewery in all_breweries if brewery.type == 'Large']
+        }
+    }
+    return render_template('breweries.html', user=current_user, breweries_dict=breweries_dict)
 
 @app.route('/breweries/<int:id>', methods=['GET','POST'])
 def show_brewery(id):

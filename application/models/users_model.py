@@ -92,10 +92,8 @@ class User:
         }
         validity = validate_data(user_info, validations)
         if 'email' in user_info:
-            query = f'SELECT * FROM {cls.TABLE_NAME} '
-            query += 'WHERE email = %(email)s;'
-            rslt = connectToMySQL(DATABASE).query_db(query, user_info)
-            if rslt:
+            email_exists = cls.get_user(user_data=user_info)
+            if email_exists:
                 flash('An account with this email has already been registered. Please try another.',
                     'error_reg_email')
                 validity = False
@@ -143,18 +141,13 @@ class User:
             return False
         current_user = cls.get_user(id=id)
         if current_user and current_user.email != new_info['email']:
-            query = f'SELECT * FROM {cls.TABLE_NAME} '
-            query += 'WHERE email = %(email)s;'
-            rslt = connectToMySQL(DATABASE).query_db(query, new_info)
-            if rslt:
+            email_exists = cls.get_user(user_data=new_info)
+            if email_exists:
                 flash('An account with this email has already been registered. Please try another.',
                     'error_update_email')
                 return False
         query = f'UPDATE {cls.TABLE_NAME} '
-        cols = []
-        for tag in validations.keys():
-            cols.append( f'{tag} = %({tag})s' )
-        cols = ', '.join(cols)
+        cols = ', '.join([f'{tag} = %({tag})s' for tag in validations.keys()])
         query += f'SET {cols} '
         query += f'WHERE id = {id};'
         rslt = connectToMySQL(DATABASE).query_db(query, new_info)

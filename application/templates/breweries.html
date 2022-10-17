@@ -5,14 +5,14 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Green Guzzler</title>
+    <title>Breweries</title>
     <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css')}}">
 </head>
 
-<body style="background-image: url(../static/img/brewery-tall.jpg); 
-background-size:cover;
-min-height:75vh;">
-    <div class="bg-dark d-flex flex-column" style="min-height: 100vh;">
+<body>
+    <div class="bg-dark d-flex flex-column" style="min-height: 100vh; 
+    background-image: url(../static/img/brewery-tall.jpg); 
+    background-size:cover;">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
             <a class="navbar-brand fs-1 text-light mx-3" href="/">
                 <span class="text-success">G</span>reen
@@ -26,12 +26,12 @@ min-height:75vh;">
             <div class="collapse navbar-collapse text-end me-3" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Beers</a>
+                        <a class="nav-link" href="/beers">Beers</a>
                     </li>
                     {% if user %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Dashboard</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/users/{{user.id}}/account">Account</a>
                     </li>
@@ -46,9 +46,7 @@ min-height:75vh;">
                 </ul>
             </div>
         </nav>
-        <div class="p-3 d-flex flex-column align-items-center justify-content-start gap-3" style="background-image: url(../static/img/brewery-tall.jpg); 
-            background-size:cover;
-            min-height:75vh;">
+        <div class="p-3 d-flex flex-column align-items-center justify-content-start gap-3">
             <div class="container p-0 text-center text-light" style="text-shadow: 0 0 1rem white;">
                 <h3 class="display-3">Explore Breweries</h3>
             </div>
@@ -58,11 +56,12 @@ min-height:75vh;">
                     <button class="btn btn-danger w-50 fs-3" type="submit">Add it!</button>
                 </form>
             </div>
+            {% for (category, content) in breweries_dict %}
             <div class="container rounded shadow-sm pb-3" style="background-color: rgba(0, 0, 0, 0.411);">
-                <h4 class="display-5 text-center text-light">Nanobreweries</h4>
-                <div id="nanoControls" class="carousel slide" data-ride="carousel" style="min-height: 25vh;">
+                <h4 class="display-5 text-center text-light">{{content['title']}}</h4>
+                <div id="{{category}}Controls" class="carousel slide" data-ride="carousel" style="min-height: 25vh;">
                     <div class="carousel-inner text-center d-flex align-items-center" style="min-height: 25vh;">
-                        {% for brewery in breweries[0] %}
+                        {% for brewery in content['breweries'] %}
                         <div class="carousel-item {{'active' if loop.index0 == 0 else ''}}">
                             <form action="/breweries/{{brewery.id}}">
                                 <button class="btn btn-success text-light text-center w-50">
@@ -74,136 +73,17 @@ min-height:75vh;">
                         </div>
                         {% endfor %}
                     </div>
-                    <a class="carousel-control-prev" href="#nanoControls" role="button" data-slide="prev">
+                    <a class="carousel-control-prev" href="#{{category}}Controls" role="button" data-slide="prev">
                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                         <span class="sr-only">Prev</span>
                     </a>
-                    <a class="carousel-control-next" href="#nanoControls" role="button" data-slide="next">
+                    <a class="carousel-control-next" href="#{{category}}Controls" role="button" data-slide="next">
                         <span class="sr-only">Next</span>
                         <span class="carousel-control-next-icon" aria-hidden="true"></span>
                     </a>
                 </div>
             </div>
-            <div class="container rounded shadow-sm pb-3" style="background-color: rgba(0, 0, 0, 0.411);">
-                <h4 class="display-5 text-center text-light">Microbreweries</h4>
-                <div id="microControls" class="carousel slide" data-ride="carousel" style="min-height: 25vh;">
-                    <div class="carousel-inner text-center d-flex align-items-center" style="min-height: 25vh;">
-                        {% for brewery in breweries[1] %}
-                        <div class="carousel-item {{'active' if loop.index0 == 0 else ''}}">
-                            <button class="btn btn-success text-light text-center w-50">
-                                <h5 class="display-4">{{brewery.name}}</h5>
-                                <p>{{brewery.address}}</p>
-                                <p>{{brewery.city}}, {{brewery.state}} {{brewery.zip}}</p>
-                            </button>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <a class="carousel-control-prev" href="#microControls" role="button" data-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Prev</span>
-                    </a>
-                    <a class="carousel-control-next" href="#microControls" role="button" data-slide="next">
-                        <span class="sr-only">Next</span>
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    </a>
-                </div>
-            </div>
-            <div class="container rounded shadow-sm pb-3" style="background-color: rgba(0, 0, 0, 0.411);">
-                <h4 class="display-5 text-center text-light">Brewpubs</h4>
-                <div id="pubControls" class="carousel slide" data-ride="carousel" style="min-height: 25vh;">
-                    <div class="carousel-inner text-center d-flex align-items-center" style="min-height: 25vh;">
-                        {% for brewery in breweries[2] %}
-                        <div class="carousel-item {{'active' if loop.index0 == 0 else ''}}">
-                            <button class="btn btn-success text-light text-center w-50">
-                                <h5 class="display-4">{{brewery.name}}</h5>
-                                <p>{{brewery.address}}</p>
-                                <p>{{brewery.city}}, {{brewery.state}} {{brewery.zip}}</p>
-                            </button>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <a class="carousel-control-prev" href="#pubControls" role="button" data-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Prev</span>
-                    </a>
-                    <a class="carousel-control-next" href="#pubControls" role="button" data-slide="next">
-                        <span class="sr-only">Next</span>
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    </a>
-                </div>
-            </div>
-            <div class="container rounded shadow-sm pb-3" style="background-color: rgba(0, 0, 0, 0.411);">
-                <h4 class="display-5 text-center text-light">Regional Breweries</h4>
-                <div id="regionalControls" class="carousel slide" data-ride="carousel" style="min-height: 25vh;">
-                    <div class="carousel-inner text-center d-flex align-items-center" style="min-height: 25vh;">
-                        {% for brewery in breweries[3] %}
-                        <div class="carousel-item {{'active' if loop.index0 == 0 else ''}}">
-                            <button class="btn btn-success text-light text-center w-50">
-                                <h5 class="display-4">{{brewery.name}}</h5>
-                                <p>{{brewery.address}}</p>
-                                <p>{{brewery.city}}, {{brewery.state}} {{brewery.zip}}</p>
-                            </button>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <a class="carousel-control-prev" href="#regionalControls" role="button" data-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Prev</span>
-                    </a>
-                    <a class="carousel-control-next" href="#regionalControls" role="button" data-slide="next">
-                        <span class="sr-only">Next</span>
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    </a>
-                </div>
-            </div>
-            <div class="container rounded shadow-sm pb-3" style="background-color: rgba(0, 0, 0, 0.411);">
-                <h4 class="display-5 text-center text-light">Regional Craft Breweries</h4>
-                <div id="regionalCraftControls" class="carousel slide" data-ride="carousel" style="min-height: 25vh;">
-                    <div class="carousel-inner text-center d-flex align-items-center" style="min-height: 25vh;">
-                        {% for brewery in breweries[4] %}
-                        <div class="carousel-item {{'active' if loop.index0 == 0 else ''}}">
-                            <button class="btn btn-success text-light text-center w-50">
-                                <h5 class="display-4">{{brewery.name}}</h5>
-                                <p>{{brewery.address}}</p>
-                                <p>{{brewery.city}}, {{brewery.state}} {{brewery.zip}}</p>
-                            </button>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <a class="carousel-control-prev" href="#regionalCraftControls" role="button" data-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Prev</span>
-                    </a>
-                    <a class="carousel-control-next" href="#regionalCraftControls" role="button" data-slide="next">
-                        <span class="sr-only">Next</span>
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    </a>
-                </div>
-            </div>
-            <div class="container rounded shadow-sm pb-3" style="background-color: rgba(0, 0, 0, 0.411);">
-                <h4 class="display-5 text-center text-light">Large Breweries</h4>
-                <div id="largeControls" class="carousel slide" data-ride="carousel" style="min-height: 25vh;">
-                    <div class="carousel-inner text-center d-flex align-items-center" style="min-height: 25vh;">
-                        {% for brewery in breweries[5] %}
-                        <div class="carousel-item {{'active' if loop.index0 == 0 else ''}}">
-                            <button class="btn btn-success text-light text-center w-50">
-                                <h5 class="display-4">{{brewery.name}}</h5>
-                                <p>{{brewery.address}}</p>
-                                <p>{{brewery.city}}, {{brewery.state}} {{brewery.zip}}</p>
-                            </button>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <a class="carousel-control-prev" href="#largeControls" role="button" data-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Prev</span>
-                    </a>
-                    <a class="carousel-control-next" href="#largeControls" role="button" data-slide="next">
-                        <span class="sr-only">Next</span>
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    </a>
-                </div>
-            </div>
+            {% endfor %}
         </div>
     </div>
     </div>

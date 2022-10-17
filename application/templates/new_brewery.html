@@ -9,10 +9,10 @@
     <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css')}}">
 </head>
 
-<body style="background-image: url(../static/img/brewery.jpg); 
-background-size:cover;
-min-height:75vh;">
-    <div class="d-flex flex-column" style="min-height: 100vh;">
+<body>
+    <div class="d-flex flex-column" style="min-height: 100vh;
+    background-image: url(../static/img/brewery.jpg); 
+    background-size:cover;">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
             <a class="navbar-brand fs-1 text-light mx-3" href="/">
                 <span class="text-success">G</span>reen
@@ -26,12 +26,12 @@ min-height:75vh;">
             <div class="collapse navbar-collapse text-end me-3" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/">Home</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="/beers">Beers</a>
                     </li>
                     {% if user %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Dashboard</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/users/{{user.id}}/account">Account</a>
                     </li>
@@ -50,7 +50,7 @@ min-height:75vh;">
             <div class="container text-center text-light" style="text-shadow: 0 0 1rem white;">
                 <h3 class="display-3">Add a Brewery</h3>
             </div>
-            <form class="container d-flex flex-column gap-4 my-3 align-items-start" action="/breweries/new/create"
+            <form class="container d-flex flex-column gap-4 my-3 align-items-start" action="/breweries/new"
                 method="POST" style="color: #45992e;">
                 <div class="container d-flex gap-4 my-3 align-items-start">
                     <div class="container bg-light rounded shadow-sm pb-3">
