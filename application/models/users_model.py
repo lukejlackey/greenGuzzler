@@ -1,6 +1,6 @@
-import logging
 from application import app, DATABASE
 from application.config.mysqlconnection import connectToMySQL
+from application.models.model_functions import validate_data
 from flask import flash
 from flask_bcrypt import Bcrypt
 import re
@@ -38,108 +38,108 @@ class User:
         rslt = connectToMySQL(DATABASE).query_db(query, user_data)
         return cls(rslt[0]) if rslt else False
 
-    # Validate input data and return any error messages
-    @staticmethod
-    def validate_data(data, validations):
-        validity = True
-        for (k, v) in validations.items():
-            if not data[k]:
-                flash('This field is required.', v[1])
-                validity = False
-            elif not all(v):
-                flash(v[0], v[1])
-                validity = False
-        return validity
-
     # Validate login attempt
     @classmethod
-    def validate_login(cls, creds):
-        login_validations = {
-            'email' : ('Please provide your email.', 'error_login_email'),
-            'password' : ('Please enter your password.', 'error_login_pw')
+    def validate_login(cls, credentials):
+        validations = {
+            'email' : {
+                'tag' : 'error_login_email',
+                'msg' : 'Please provide your email.',
+                'condition' : None
+            },
+            'password' : {
+                'tag' : 'error_login_pw',
+                'msg' : 'Please enter your password.',
+                'condition' : None
             }
-        if not cls.validate_data(creds, login_validations):
+        }
+        if not validate_data(credentials, validations):
             return False
-        current_user = cls.get_user(creds)
-        if not current_user or not bcrypt.check_password_hash(current_user.password, creds['password']):
+        current_user = cls.get_user(user_data=credentials)
+        if not current_user or not bcrypt.check_password_hash(current_user.password, credentials['password']):
             return False
         return current_user
 
     # Validate registration attempt
     @classmethod
-    def validate_register(cls, reg_info):
-        reg_validations = {
-            'first_name' : 
-                (f'Your first name must be at least {cls.FIRST_NAME_LENGTH} characters long.', 
-                 'error_reg_fn',
-                 len(reg_info['first_name']) >= cls.FIRST_NAME_LENGTH),
-            'last_name' : 
-                (f'Your first name must be at least {cls.LAST_NAME_LENGTH} characters long.', 
-                 'error_reg_ln',
-                 len(reg_info['first_name']) >= cls.LAST_NAME_LENGTH),
-            'email' : 
-                ('Please provide a valid email.', 
-                 'error_reg_email',
-                 cls.EMAIL_REGEX.match(reg_info['email']) != None),
-            'password' : 
-                (f'Your password must include: at least {cls.PASSWORD_LENGTH} characters, an upper case letter, a lower case letter, a number, and a special character.', 
-                 'error_reg_pw',
-                 len(reg_info['password']) >= cls.PASSWORD_LENGTH,
-                 cls.PASSWORD_REGEX.match(reg_info['password']) != None),
-            'confirm_pw' : 
-                ('Passwords must match.', 
-                 'error_reg_conf_pw',
-                 reg_info['password'] == reg_info['confirm_pw'])
+    def validate_registration(cls, user_info):
+        validations = {
+            'first_name' : {
+                'tag' : 'error_reg_fn',
+                'msg' : f'Your first name must be at least {cls.FIRST_NAME_LENGTH} characters long.',
+                'condition' : len(user_info['first_name']) >= cls.FIRST_NAME_LENGTH
+            },
+            'last_name' : {
+                'tag' : 'error_reg_ln',
+                'msg' : f'Your last name must be at least {cls.LAST_NAME_LENGTH} characters long.',
+                'condition' : len(user_info['last_name']) >= cls.LAST_NAME_LENGTH
+            },
+            'email' : {
+                'tag' : 'error_reg_email',
+                'msg' : 'Please provide a valid email.',
+                'condition' : cls.EMAIL_REGEX.match(user_info['email']) != None
+            },
+            'password' : {
+                'tag' : 'error_reg_pw',
+                'msg' : f'Your password must include: at least {cls.PASSWORD_LENGTH} characters, an upper case letter, a lower case letter, a number, and a special character.',
+                'condition' : len(user_info['password']) >= cls.PASSWORD_LENGTH and cls.PASSWORD_REGEX.match(user_info['password']) != None
+            },
+            'confirm_pw' : {
+                'tag' : 'error_reg_conf_pw',
+                'msg' : 'Passwords must match.',
+                'condition' : user_info['password'] == user_info['confirm_pw']
+            }
         }
-        return cls.validate_data(reg_info, reg_validations)
+        validity = validate_data(user_info, validations)
+        if 'email' in user_info:
+            query = f'SELECT * FROM {cls.TABLE_NAME} '
+            query += 'WHERE email = %(email)s;'
+            rslt = connectToMySQL(DATABASE).query_db(query, user_info)
+            if rslt:
+                flash('An account with this email has already been registered. Please try another.',
+                    'error_reg_email')
+                validity = False
+        return validity
 
     # Create new user row in MySQL DB
     @classmethod
     def create_new_user(cls, user_info):
-        user_data = {
+        valid_info = cls.validate_registration(user_info)
+        if not valid_info:
+            return False
+        new_user_data = {
             **user_info,
-            'password': bcrypt.generate_password_hash(user_info['password'])
+            'password': bcrypt.generate_password_hash(user_info['password']),
+            'avatar': cls.DEFAULT_AVATAR
         }
         query = f"INSERT INTO {cls.TABLE_NAME}( {', '.join(cls.ATTR_TAGS)} ) "
-        cols = []
-        for tag in cls.ATTR_TAGS:
-            cols.append( f'%({tag})s' )
-        cols = ', '.join(cols)
+        cols = ', '.join([f'%({tag})s' for tag in cls.ATTR_TAGS])
         query += f'VALUES( {cols} );'
-        user_info['id'] = connectToMySQL(DATABASE).query_db(query, user_data)
-        new_user = cls(user_info)
+        new_user_data['id'] = connectToMySQL(DATABASE).query_db(query, new_user_data)
+        new_user = cls(new_user_data)
         return new_user
-    
-    # Register new user utilizing validateUser + createNewUser methods
-    @classmethod
-    def register_new_user(cls, regist_info):
-        query = f'SELECT * FROM {cls.TABLE_NAME} '
-        query += 'WHERE email = %(email)s;'
-        rslt = connectToMySQL(DATABASE).query_db(query, regist_info)
-        if rslt:
-            flash('An account with this email has already been registered. Please try another.',
-                  'error_reg_email')
-            return False
-        return cls.create_new_user({**regist_info,'avatar': cls.DEFAULT_AVATAR})
 
     # Edit existing user
     @classmethod
     def edit_user(cls, new_info, id):
-        edit_validations = {
-            'first_name' : 
-                (f'Your first name must be at least {cls.FIRST_NAME_LENGTH} characters long.', 
-                 'error_update_fn',
-                 len(new_info['first_name']) >= cls.FIRST_NAME_LENGTH),
-            'last_name' : 
-                (f'Your last name must be at least {cls.LAST_NAME_LENGTH} characters long.', 
-                 'error_update_ln',
-                 len(new_info['last_name']) >= cls.LAST_NAME_LENGTH),
-            'email' : 
-                ('Please provide a valid email.', 
-                 'error_update_email',
-                 cls.EMAIL_REGEX.match(new_info['email']) != None)
+        validations = {
+            'first_name' : {
+                'tag' : 'error_reg_fn',
+                'msg' : f'Your first name must be at least {cls.FIRST_NAME_LENGTH} characters long.',
+                'condition' : len(new_info['first_name']) >= cls.FIRST_NAME_LENGTH
+            },
+            'last_name' : {
+                'tag' : 'error_reg_ln',
+                'msg' : f'Your last name must be at least {cls.LAST_NAME_LENGTH} characters long.',
+                'condition' : len(new_info['last_name']) >= cls.LAST_NAME_LENGTH
+            },
+            'email' : {
+                'tag' : 'error_reg_email',
+                'msg' : 'Please provide a valid email.',
+                'condition' : cls.EMAIL_REGEX.match(new_info['email']) != None
+            }
         }
-        if not cls.validate_data(new_info, edit_validations):
+        if not validate_data(new_info, validations):
             return False
         current_user = cls.get_user(id=id)
         if current_user and current_user.email != new_info['email']:
@@ -152,14 +152,14 @@ class User:
                 return False
         query = f'UPDATE {cls.TABLE_NAME} '
         cols = []
-        for tag in edit_validations.keys():
+        for tag in validations.keys():
             cols.append( f'{tag} = %({tag})s' )
         cols = ', '.join(cols)
         query += f'SET {cols} '
         query += f'WHERE id = {id};'
         rslt = connectToMySQL(DATABASE).query_db(query, new_info)
 
-    #Add or edit avatar picture filename
+    #Edit avatar picture
     @classmethod
     def edit_avatar(cls, filepath, id):
         query = f'UPDATE {cls.TABLE_NAME} '

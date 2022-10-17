@@ -39,12 +39,12 @@ def create_brewery():
     if request.method == 'GET':
         return render_template('new_brewery.html', user=current_user, types=Brewery.BREWERY_TYPES)
     elif request.method == 'POST':
-        if Brewery.validate_create_brewery(request.form):
-            new_brewery_data = {
-                **request.form,
-                'poster_id' : current_user.id
-            }
-            new_brewery = Brewery.create_new_brewery(new_brewery_data)
+        new_brewery_data = {
+            **request.form,
+            'poster_id' : current_user.id
+        }
+        new_brewery = Brewery.create_new_brewery(new_brewery_data)
+        if new_brewery:
             return redirect(f"/breweries/{new_brewery}")
         return redirect('/breweries/new')
 

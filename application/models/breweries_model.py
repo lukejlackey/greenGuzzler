@@ -1,7 +1,7 @@
 from application import DATABASE
 from application.models.users_model import User
 from application.config.mysqlconnection import connectToMySQL
-from flask import flash 
+from application.models.model_functions import validate_data
 
 class Brewery:
     
@@ -44,17 +44,17 @@ class Brewery:
         breweries = [cls(brewery) for brewery in rslt]
         return breweries
 
-    @classmethod
-    def get_all_user_breweries(cls, user_id):
-        query = f'SELECT {cls.TABLE_NAME}.*, COUNT({cls.MTM_TABLE_NAME}.users_id) AS subcount FROM {cls.TABLE_NAME} '
-        query += f'LEFT JOIN {cls.MTM_TABLE_NAME} ON {cls.TABLE_NAME}.id = {cls.MTM_TABLE_NAME}.breweries_id '
-        query += f'WHERE user_id = {user_id} '
-        query += f'GROUP BY {cls.TABLE_NAME}.id; '
-        rslt = connectToMySQL(DATABASE).query_db(query)
-        if not rslt:
-            return False
-        breweries = [cls(brewery) for brewery in rslt]
-        return breweries
+    # @classmethod
+    # def get_all_user_breweries(cls, user_id):
+    #     query = f'SELECT {cls.TABLE_NAME}.*, COUNT({cls.MTM_TABLE_NAME}.users_id) AS subcount FROM {cls.TABLE_NAME} '
+    #     query += f'LEFT JOIN {cls.MTM_TABLE_NAME} ON {cls.TABLE_NAME}.id = {cls.MTM_TABLE_NAME}.breweries_id '
+    #     query += f'WHERE user_id = {user_id} '
+    #     query += f'GROUP BY {cls.TABLE_NAME}.id; '
+    #     rslt = connectToMySQL(DATABASE).query_db(query)
+    #     if not rslt:
+    #         return False
+    #     breweries = [cls(brewery) for brewery in rslt]
+    #     return breweries
 
     @classmethod
     def get_brewery(cls, id):
@@ -64,36 +64,45 @@ class Brewery:
         query += f'LEFT JOIN {User.TABLE_NAME} ON {cls.MTM_TABLE_NAME}.users_id = {User.TABLE_NAME}.id '
         query += f'WHERE {cls.TABLE_NAME}.id = {id};'
         rslt = connectToMySQL(DATABASE).query_db(query)
-        print('RSLT:',rslt)
-        return cls(rslt[0]) if rslt else False
+        if not rslt:
+            return False
+        brewery = cls(rslt[0])
+        return brewery
 
     @classmethod
     def validate_create_brewery(cls, brewery_info):
-        info_dict = {
-            'name' : 
-                (f'Your brewery name must be at least {cls.NAME_LENGTH} characters long.', 
-                'error_create_brewery_name',
-                len(brewery_info['name']) >= cls.NAME_LENGTH),
-            'address' : 
-                (f'Address is required.', 
-                'error_create_brewery_address'),
-            'city' : 
-                (f'City is required.', 
-                'error_create_brewery_city'),
-            'zip' : 
-                (f'Please enter a valid zip.', 
-                'error_create_brewery_zip',
-                cls.ZIP_MIN <= int(brewery_info['zip'] if brewery_info['zip'] else 0) <= cls.ZIP_MAX),
+        validations = {
+            'name' : {
+                'tag' : 'error_create_brewery_name',
+                'msg' : f'Your brewery name must be at least {cls.NAME_LENGTH} characters long.',
+                'condition' : len(brewery_info['name']) >= cls.NAME_LENGTH
+            },
+            'address' : {
+                'tag' : 'error_create_brewery_address',
+                'msg' : 'Address is required.',
+                'condition' : None
+            },
+            'city' : {
+                'tag' : 'error_create_brewery_city',
+                'msg' : 'City is required.',
+                'condition' : None
+            },
+            'zip' : {
+                'tag' : 'error_create_brewery_zip',
+                'msg' : 'Please enter a valid zip.',
+                'condition' : cls.ZIP_MIN <= int(brewery_info['zip'] if brewery_info['zip'] else cls.ZIP_MIN - 1) <= cls.ZIP_MAX
+            }
         }
-        return cls.validate_data(brewery_info, info_dict)
+        validity = validate_data(brewery_info, validations)
+        return validity
 
     @classmethod
     def create_new_brewery(cls, brewery_info):
+        valid_info = cls.validate_create_brewery(brewery_info)
+        if not valid_info:
+            return False
         query = f"INSERT INTO {cls.TABLE_NAME}( {', '.join(cls.ATTR_TAGS)} ) "
-        cols = []
-        for tag in cls.ATTR_TAGS:
-            cols.append( f'%({tag})s' )
-        cols = ', '.join(cols)
+        cols = ', '.join([f'%({tag})s' for tag in cls.ATTR_TAGS])
         query += f'VALUES( {cols} );'
         rslt = connectToMySQL(DATABASE).query_db(query, brewery_info)
         return rslt
@@ -101,10 +110,7 @@ class Brewery:
     @classmethod
     def visit_brewery(cls, visit_info):
         query = f"INSERT INTO {cls.MTM_TABLE_NAME}( {', '.join(cls.MTM_IDS)} ) "
-        cols = []
-        for tag in cls.MTM_IDS:
-            cols.append( f'%({tag})s' )
-        cols = ', '.join(cols)
+        cols = ', '.join([f'%({tag})s' for tag in cls.MTM_IDS])
         query += f'VALUES( {cols} );'
         rslt = connectToMySQL(DATABASE).query_db(query, visit_info)
         return rslt
@@ -112,38 +118,15 @@ class Brewery:
     @classmethod
     def update_brewery(cls, new_info):
         query = f'UPDATE {cls.TABLE_NAME} '
-        cols = []
-        for tag in cls.ATTR_TAGS:
-            cols.append( f'{tag} = %({tag})s' )
-        cols = ', '.join(cols)
+        cols = ', '.join([f'%({tag})s' for tag in cls.ATTR_TAGS])
         query += f'SET {cols} '
         query += 'WHERE id = %(id)s;'
-        print(query)
         rslt = connectToMySQL(DATABASE).query_db(query, new_info)
         return rslt
 
     @classmethod
     def delete_brewery(cls, id):
-        query = f'SELECT * FROM {cls.MTM_TABLE_NAME} WHERE breweries_id = {id};'
-        if connectToMySQL(DATABASE).query_db(query):
-            query = f'DELETE {cls.MTM_TABLE_NAME}, {cls.TABLE_NAME} FROM {cls.MTM_TABLE_NAME} '
-            query += f'LEFT JOIN {cls.TABLE_NAME} ON {cls.MTM_TABLE_NAME}.breweries_id = {cls.TABLE_NAME}.id '
-        else:
-            query = f'DELETE {cls.TABLE_NAME}, {cls.MTM_TABLE_NAME} FROM {cls.TABLE_NAME} '
-            query += f'LEFT JOIN {cls.MTM_TABLE_NAME} ON {cls.TABLE_NAME}.id = {cls.MTM_TABLE_NAME}.breweries_id '
+        query = f'DELETE FROM {cls.TABLE_NAME} '
         query += f'WHERE id = {id};'
         rslt = connectToMySQL(DATABASE).query_db(query)
         return rslt
-
-    # Validate input data and return any error messages
-    @staticmethod
-    def validate_data(data, validations):
-        validity = True
-        for (k, v) in validations.items():
-            if not data[k]:
-                flash('This field is required.', v[1])
-                validity = False
-            elif not all(v):
-                flash(v[0], v[1])
-                validity = False
-        return validity

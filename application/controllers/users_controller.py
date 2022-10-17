@@ -33,11 +33,10 @@ def login():
         return render_template('login.html', quote=Quote())
     elif request.method == 'POST':
         if 'first_name' in request.form:
-            if User.validate_register(request.form):
-                new_user = User.register_new_user(dict(request.form))
-                if new_user:
-                    session['logged_user'] = new_user.id
-                    return redirect(f'/users/{new_user.id}/dashboard')
+            new_user = User.create_new_user(request.form)
+            if new_user:
+                session['logged_user'] = new_user.id
+                return redirect(f'/users/{new_user.id}/dashboard')
         else:
             user = User.validate_login(request.form)
             if not user:
@@ -45,7 +44,7 @@ def login():
                 return redirect('/login')
             session['logged_user'] = user.id
             return redirect('/')
-    return redirect('/login')
+        return redirect('/login')
 
 @app.route('/users/<int:id>/account', methods=['GET', 'PUT'])
 def account(id):

@@ -36,19 +36,18 @@ def create_beer():
         breweries = Brewery.get_all_breweries()
         return render_template('new_beer.html', user=current_user, breweries=breweries)
     elif request.method == 'POST':
-        if Beer.validate_create_beer(request.form):
+        new_beer_data = {
+            **request.form,
+            'poster_id' : session['logged_user']
+        }
+        new_beer = Beer.create_new_beer(new_beer_data)
+        if new_beer:
             new_beer_data = {
-                **request.form,
-                'poster_id' : session['logged_user']
+                **new_beer_data,
+                'users_id' : session['logged_user'],
+                'beers_id' : new_beer
             }
-            new_beer = Beer.create_new_beer(new_beer_data)
-            if new_beer:
-                new_beer_data = {
-                    **new_beer_data,
-                    'users_id' : session['logged_user'],
-                    'beers_id' : new_beer
-                }
-                new_rating = Beer.rate_beer(new_beer_data)
+            new_rating = Beer.rate_beer(new_beer_data)
             return redirect("/")
         return redirect('/beers/new')
 
@@ -68,7 +67,7 @@ def edit_beer(id):
             'id' : id,
             'poster_id' : current_user.id
         }
-        if not Beer.validate_create_beer(new_info):
+        if not Beer.validate_new_beer(new_info):
             return redirect(f'/beers/edit/{id}')
         rslt = Beer.update_beer(new_info)
         return redirect(f"/beers/{id}")
