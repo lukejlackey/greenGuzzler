@@ -54,50 +54,54 @@
                 <h3 class="display-3">{{beer.name}}</h3>
             </div>
             <div class="container rounded shadow-sm w-100 bg-light" style="color: #45992e;">
-                <form class="d-flex flex-column justify-content-between h-100" action="/beers/{{beer.id}}/edit"
-                    method="POST">
-                    <div>
-                        <h2 class="display-5 text-success">Basic Info</h2>
-                        <div class="form-group">
-                            <label class="form-label" for="name">Name:</label>
-                            <input class="form-control" type="text" name="name" id="name" value="{{beer.name}}">
-                            {% for msg in get_flashed_messages( category_filter = ['error_update_beer_name'] ) %}
-                            <p class="text-warning">*{{ msg }}</p>
-                            {% endfor %}
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="breweries_id">Brewery:</label>
-                            <select class="form-select" name="breweries_id" id="breweries_id">
-                                {% for brewery in breweries %}
-                                <option value="{{brewery.id}}" {{"selected='selected'" if brewery.id==beer.breweries_id else ''}}>{{ brewery.name }}</option>
+                <div class="d-flex flex-column justify-content-between h-100">
+                    <form action="/beers/{{beer.id}}/edit" method="POST" id="update">
+                        <div>
+                            <h2 class="display-5 text-success">Basic Info</h2>
+                            <div class="form-group">
+                                <label class="form-label" for="name">Name:</label>
+                                <input class="form-control" type="text" name="name" id="name" value="{{beer.name}}">
+                                {% for msg in get_flashed_messages( category_filter = ['error_update_beer_name'] ) %}
+                                <p class="text-warning">*{{ msg }}</p>
                                 {% endfor %}
-                            </select>
-                        </div>
-                        <div class=" form-group">
-                                    <label class="form-label" for="type">Style:</label>
-                                    <input class="form-control" type="text" name="type" id="type" value="{{beer.type}}">
-                                    {% for msg in get_flashed_messages( category_filter = ['error_update_beer_type'] )
-                                    %}
-                                    <p class=" text-warning">*{{ msg }}</p>
-                                    {% endfor %}
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="abv">ABV:</label>
-                            <div class="input-group">
-                                <input class="form-control" type="number" name="abv" id="abv" min="0.00" max="100"
-                                    value="{{beer.abv}}" step="0.01" maxlength="3">
-                                <span class="input-group-text">%</span>
                             </div>
-                            {% for msg in get_flashed_messages( category_filter = ['error_update_beer_abv'] ) %}
-                            <p class="text-warning">*{{ msg }}</p>
-                            {% endfor %}
-                        </div>
-                        <div class="container my-3 d-flex justify-content-around align-items-center">
-                            <button class="btn btn-success w-25" type="submit">Save</button>
-                            <a class="btn btn-danger w-25" href="/beers/{{beer.id}}/crush">Delete</a>
-                        </div>
-                </form>
-
+                            <div class="form-group">
+                                <label class="form-label" for="breweries_id">Brewery:</label>
+                                <select class="form-select" name="breweries_id" id="breweries_id">
+                                    {% for brewery in breweries %}
+                                    <option value="{{brewery.id}}" {{"selected='selected'" if brewery.id==beer.breweries_id else ''}}>{{ brewery.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class=" form-group">
+                                        <label class="form-label" for="type">Style:</label>
+                                        <input class="form-control" type="text" name="type" id="type"
+                                            value="{{beer.type}}">
+                                        {% for msg in get_flashed_messages( category_filter = ['error_update_beer_type']
+                                        )
+                                        %}
+                                        <p class=" text-warning">*{{ msg }}</p>
+                                        {% endfor %}
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="abv">ABV:</label>
+                                <div class="input-group">
+                                    <input class="form-control" type="number" name="abv" id="abv" min="0.00" max="100"
+                                        value="{{beer.abv}}" step="0.01" maxlength="3">
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                {% for msg in get_flashed_messages( category_filter = ['error_update_beer_abv'] ) %}
+                                <p class="text-warning">*{{ msg }}</p>
+                                {% endfor %}
+                            </div>
+                    </form>
+                    <div class="container my-3 d-flex justify-content-around align-items-center">
+                        <button class="btn btn-success w-25" type="submit" form="update">Save</button>
+                        <form class="w-25" action="/beers/{{beer.id}}/crush" method="POST">
+                            <button class="btn btn-danger w-100" type="submit">Delete</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

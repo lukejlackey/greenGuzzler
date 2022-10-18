@@ -8,8 +8,11 @@ class Beer:
     TABLE_NAME = 'beers'
     MTO_TABLE_NAME = 'breweries'
     MTM_TABLE_NAME = 'users_taste_beers'
-    ATTR_TAGS = ['name', 'type', 'abv', 'breweries_id', 'poster_id']
-    MTM_TAGS = ['users_id', 'beers_id', 'taste', 'cost', 'val']
+    COLUMN_NAMES = ['name', 'type', 'abv', 'breweries_id', 'poster_id']
+    MTM_COLUMN_NAMES = ['users_id', 'beers_id', 'taste', 'cost', 'val']
+    BASIC_CONSTRUCTOR_ATTRS = ['id', 'name', 'type', 'breweries_id', 'brewery', 'poster_id', 'poster_first_name','poster_last_name','poster_avatar', 'tasters']
+    ROUND_CONTRUCTOR_ATTRS = ['taste', 'cost', 'val']
+    FLOAT_CONSTRUCTOR_ATTRS = ['abv']
     NAME_LENGTH = 1
     TYPE_LENGTH = 3
     ABV_MIN = 0
@@ -17,30 +20,13 @@ class Beer:
     BEER_TYPES = ['Nano', 'Micro', 'Pub', 'Regional', 'Regional Craft', 'Large']
     
     def __init__(self, data):
-        self.id = data['id']
-        for tag in self.ATTR_TAGS:
-            if tag == 'abv':
-                setattr(self, tag, float(data[tag]))
-            else:
-                setattr(self, tag, data[tag])
-        if 'brewery' in data:
-            setattr(self, 'brewery', data['brewery'])
-        if 'poster_id' in data:
-            setattr(self, 'poster_id', data['poster_id'])
-        if 'poster_first_name' in data:
-            setattr(self, 'poster_first_name', data['poster_first_name'])
-        if 'poster_last_name' in data:
-            setattr(self, 'poster_last_name', data['poster_last_name'])
-        if 'poster_avatar' in data:
-            setattr(self, 'poster_avatar', data['poster_avatar'])
-        if 'tasters' in data:
-            setattr(self, 'tasters', data['tasters'])
-        if 'taste' in data:
-            setattr(self, 'taste', round(data['taste']))
-        if 'cost' in data:
-            setattr(self, 'cost', round(data['cost']))
-        if 'val' in data:
-            setattr(self, 'val', round(data['val']))
+        for (k, v) in data.items():
+            if k in self.BASIC_CONSTRUCTOR_ATTRS:
+                setattr(self, k, v)
+            elif k in self.ROUND_CONTRUCTOR_ATTRS:
+                setattr(self, k, round(v))
+            elif k in self.FLOAT_CONSTRUCTOR_ATTRS:
+                setattr(self, k, float(v))
 
     @classmethod
     def get_all_beers(cls, sort_by=None, desc=True):
@@ -119,19 +105,19 @@ class Beer:
         valid_info = cls.validate_new_beer(beer_info)
         if not valid_info:
             return False
-        query = f"INSERT INTO {cls.TABLE_NAME}( {', '.join(cls.ATTR_TAGS)} ) "
-        cols = ', '.join([f'%({tag})s' for tag in cls.ATTR_TAGS])
+        query = f"INSERT INTO {cls.TABLE_NAME}( {', '.join(cls.COLUMN_NAMES)} ) "
+        cols = ', '.join([f'%({tag})s' for tag in cls.COLUMN_NAMES])
         query += f'VALUES( {cols} );'
         rslt = connectToMySQL(DATABASE).query_db(query, beer_info)
         return rslt
 
     @classmethod
     def rate_beer(cls, rating_info):
-        query = f"INSERT INTO {cls.MTM_TABLE_NAME}( {', '.join(cls.MTM_TAGS)} ) "
-        cols = ', '.join([f'%({tag})s' for tag in cls.MTM_TAGS])
+        query = f"INSERT INTO {cls.MTM_TABLE_NAME}( {', '.join(cls.MTM_COLUMN_NAMES)} ) "
+        cols = ', '.join([f'%({tag})s' for tag in cls.MTM_COLUMN_NAMES])
         query += f'VALUES( {cols} ) '
         query += "ON DUPLICATE KEY UPDATE "
-        for tag in cls.MTM_TAGS:
+        for tag in cls.MTM_COLUMN_NAMES:
             if tag != 'users_id' or tag != 'beers_id':
                 query += f"{tag} = {rating_info[tag]}{',' if tag != 'val' else ';'} "
         rslt = connectToMySQL(DATABASE).query_db(query, rating_info)
@@ -154,7 +140,7 @@ class Beer:
         if not valid_info:
             return False
         query = f'UPDATE {cls.TABLE_NAME} '
-        cols = ', '.join([f'{tag} = %({tag})s' for tag in cls.ATTR_TAGS])
+        cols = ', '.join([f'{tag} = %({tag})s' for tag in cls.COLUMN_NAMES])
         query += f'SET {cols} '
         query += 'WHERE id = %(id)s;'
         rslt = connectToMySQL(DATABASE).query_db(query, new_info)

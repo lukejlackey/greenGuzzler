@@ -8,11 +8,12 @@ bcrypt = Bcrypt(app)
 
 class User:
     
-    # MySQL
+    # MySQL Table
     TABLE_NAME = 'users'
+    COLUMN_NAMES = ['first_name','last_name','email','password', 'avatar']
     
     # User attributes
-    ATTR_TAGS = ['first_name','last_name','email','password', 'avatar']
+    BASIC_CONSTRUCTOR_ATTRS = ['id'] + COLUMN_NAMES
     DEFAULT_AVATAR = 'default.png'
     
     # Validation params
@@ -24,11 +25,9 @@ class User:
     
     # Constructor
     def __init__(self, data) -> None:
-        self.id = data['id']
-        for tag in self.ATTR_TAGS:
-            setattr(self, tag, data[tag])
-        if 'avatar' in data:
-            self.avatar = data['avatar']
+        for (k, v) in data.items():
+            if k in self.BASIC_CONSTRUCTOR_ATTRS:
+                setattr(self, k, v)
 
     # Retrieve a user
     @classmethod
@@ -110,8 +109,8 @@ class User:
             'password': bcrypt.generate_password_hash(user_info['password']),
             'avatar': cls.DEFAULT_AVATAR
         }
-        query = f"INSERT INTO {cls.TABLE_NAME}( {', '.join(cls.ATTR_TAGS)} ) "
-        cols = ', '.join([f'%({tag})s' for tag in cls.ATTR_TAGS])
+        query = f"INSERT INTO {cls.TABLE_NAME}( {', '.join(cls.COLUMN_NAMES)} ) "
+        cols = ', '.join([f'%({tag})s' for tag in cls.COLUMN_NAMES])
         query += f'VALUES( {cols} );'
         new_user_data['id'] = connectToMySQL(DATABASE).query_db(query, new_user_data)
         new_user = cls(new_user_data)

@@ -8,9 +8,9 @@ class Brewery:
     TABLE_NAME = 'breweries'
     OTM_TABLE_NAME = 'beers'
     MTM_TABLE_NAME = 'users_go_to_breweries'
-    BEERS_MTM_TABLE_NAME = 'users_taste_beers'
-    ATTR_TAGS = ['name', 'type', 'address', 'state', 'city', 'zip', 'poster_id']
-    MTM_IDS = ['users_id','breweries_id']
+    COLUMN_NAMES = ['name', 'type', 'address', 'state', 'city', 'zip', 'poster_id']
+    MTM_COLUMN_NAMES = ['users_id','breweries_id']
+    BASIC_CONSTRUCTOR_ATTRS = COLUMN_NAMES + ['id', 'poster_first_name', 'poster_last_name', 'poster_avatar', 'visitors']
     NAME_LENGTH = 1
     ZIP_MIN = 501
     ZIP_MAX = 99950
@@ -19,20 +19,11 @@ class Brewery:
     
     
     def __init__(self, data) -> None:
-        self.id = data['id']
-        for tag in self.ATTR_TAGS:
-            if tag == 'type':
-                setattr(self, tag, self.BREWERY_TYPES[data[tag]])
-            else:
-                setattr(self, tag, data[tag])
-        if 'poster_first_name' in data:
-            setattr(self, 'poster_first_name', data['poster_first_name'])
-        if 'poster_last_name' in data:
-            setattr(self, 'poster_last_name', data['poster_last_name'])
-        if 'poster_avatar' in data:
-            setattr(self, 'poster_avatar', data['poster_avatar'])
-        if 'visitors' in data:
-            setattr(self, 'visitors', data['visitors'])
+        for (k, v) in data.items():
+            if k in self.BASIC_CONSTRUCTOR_ATTRS and k != 'type':
+                setattr(self, k, v)
+            elif k == 'type':
+                setattr(self, k, self.BREWERY_TYPES[v])
 
     @classmethod
     def get_all_breweries(cls):
@@ -100,16 +91,16 @@ class Brewery:
         valid_info = cls.validate_create_brewery(brewery_info)
         if not valid_info:
             return False
-        query = f"INSERT INTO {cls.TABLE_NAME}( {', '.join(cls.ATTR_TAGS)} ) "
-        cols = ', '.join([f'%({tag})s' for tag in cls.ATTR_TAGS])
+        query = f"INSERT INTO {cls.TABLE_NAME}( {', '.join(cls.COLUMN_NAMES)} ) "
+        cols = ', '.join([f'%({tag})s' for tag in cls.COLUMN_NAMES])
         query += f'VALUES( {cols} );'
         rslt = connectToMySQL(DATABASE).query_db(query, brewery_info)
         return rslt
     
     @classmethod
     def visit_brewery(cls, visit_info):
-        query = f"INSERT INTO {cls.MTM_TABLE_NAME}( {', '.join(cls.MTM_IDS)} ) "
-        cols = ', '.join([f'%({tag})s' for tag in cls.MTM_IDS])
+        query = f"INSERT INTO {cls.MTM_TABLE_NAME}( {', '.join(cls.MTM_COLUMN_NAMES)} ) "
+        cols = ', '.join([f'%({tag})s' for tag in cls.MTM_COLUMN_NAMES])
         query += f'VALUES( {cols} );'
         rslt = connectToMySQL(DATABASE).query_db(query, visit_info)
         return rslt
@@ -131,7 +122,7 @@ class Brewery:
         if not valid_info:
             return False
         query = f'UPDATE {cls.TABLE_NAME} '
-        cols = ', '.join([f'{tag} = %({tag})s' for tag in cls.ATTR_TAGS])
+        cols = ', '.join([f'{tag} = %({tag})s' for tag in cls.COLUMN_NAMES])
         query += f'SET {cols} '
         query += 'WHERE id = %(id)s;'
         rslt = connectToMySQL(DATABASE).query_db(query, new_info)

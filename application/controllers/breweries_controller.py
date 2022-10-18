@@ -1,6 +1,5 @@
 from application import app
 from application.models.beers_model import Beer
-from application.models.users_model import User
 from application.models.breweries_model import Brewery
 from application.controllers.controller_functions import check_user
 from flask import render_template, redirect, request, session
@@ -71,7 +70,7 @@ def create_brewery():
             return redirect(f"/breweries/{new_brewery}")
         return redirect('/breweries/new')
 
-@app.route('/breweries/<int:id>/edit', methods=['GET','POST', 'DELETE'])
+@app.route('/breweries/<int:id>/edit', methods=['GET','POST'])
 def edit_brewery(id):
     current_user = check_user()
     if not current_user:
@@ -94,3 +93,14 @@ def edit_brewery(id):
     elif request.method == 'DELETE':
         rslt = Brewery.delete_brewery(id)
         return redirect("/")
+
+@app.route('/breweries/<int:id>/crush', methods=['POST'])
+def delete_brewery(id):
+    current_user = check_user()
+    if not current_user:
+        return redirect('/login')
+    brewery = Brewery.get_brewery(id)
+    if current_user.id != brewery.poster_id:
+        return redirect(f"/")
+    rslt = Brewery.delete_brewery(id)
+    return redirect("/")

@@ -65,10 +65,10 @@ def create_beer():
                 'beers_id' : new_beer
             }
             new_rating = Beer.rate_beer(new_beer_data)
-            return redirect("/")
+            return redirect(f"/beers/{new_beer}")
         return redirect('/beers/new')
 
-@app.route('/beers/<int:id>/edit', methods=['GET','POST', 'DELETE'])
+@app.route('/beers/<int:id>/edit', methods=['GET','POST'])
 def edit_beer(id):
     current_user = check_user()
     if not current_user:
@@ -88,6 +88,14 @@ def edit_beer(id):
         if rslt is not None:
             return redirect(f'/beers/{id}/edit')
         return redirect(f"/beers/{id}")
-    elif request.method == 'DELETE':
-        rslt = Beer.delete_beer(id)
-        return redirect("/")
+    
+@app.route('/beers/<int:id>/crush', methods=['POST'])
+def delete_beer(id):
+    current_user = check_user()
+    if not current_user:
+        return redirect('/login')
+    beer = Beer.get_beer(id)
+    if current_user.id != beer.poster_id:
+        return redirect(f"/")
+    rslt = Beer.delete_beer(id)
+    return redirect("/")
