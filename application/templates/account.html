@@ -11,7 +11,7 @@
 
 <body>
     <div style="min-height: 100vh; 
-    background-image: url(../static/img/beer-plants.jpg); 
+    background-image: url({{url_for('static', filename='img/beer-plants.jpg')}}); 
     background-size:cover;">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
             <a class="navbar-brand fs-1 text-light mx-3" href="/">
@@ -26,7 +26,7 @@
             <div class="collapse navbar-collapse text-end me-3" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/">Dashboard</a>
+                        <a class="nav-link" href="/users/{{user.id}}/dash">Dashboard</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/breweries">Breweries</a>
@@ -47,7 +47,8 @@
             <div class="container d-flex gap-4 my-3 align-items-start" style="color: #45992e;">
                 <div class="container bg-light rounded shadow-sm" style="min-height: 24rem ;">
                     <h2 class="display-5 text-success">Basic Info</h2>
-                    <form action="/users/{{user.id}}/account" method="PUT">
+                    <form action="/users/{{user.id}}/account" method="POST">
+                        <input type="hidden" value="">
                         <label class="form-label" for="first_name">First Name:</label>
                         <input class="form-control" type="text" name="first_name" id="first_name"
                             value="{{user.first_name}}">
@@ -71,9 +72,9 @@
                 <div class="container bg-light rounded shadow-sm" style="min-height: 24rem ;">
                     <h2 class="display-5 text-success">Avatar</h2>
                     <label class="form-label me-3" for="avatar">Current:</label>
-                    <img src="{{url_for('static', filename='img/avatars/'+ user.avatar)}}"
-                        style="height: 8.75rem; width: 8.75rem; object-fit: cover; border-radius: 50%;" />
-                    <form action="/users/{{user.id}}/account" method="PUT" enctype=multipart/form-data>
+                    <img class="img-thumbnail" src="{{url_for('static', filename='img/avatars/'+ user.avatar)}}"
+                        style="width: 100%; object-fit: cover; border-radius: 1rem;" />
+                    <form action="/users/{{user.id}}/account" method="POST" enctype=multipart/form-data>
                         <label class="form-label" for="avatar">Upload:</label>
                         <input class="form-control" type="file" name="avatar" id="avatar">
                         {% for msg in get_flashed_messages( category_filter = ['error_update_avatar'] ) %}

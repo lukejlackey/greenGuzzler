@@ -15,7 +15,7 @@ def show_all_breweries():
             'breweries' : [brewery for brewery in all_breweries if brewery.type == 'Nano']
         },
         'micro' : {
-            'title' : 'MicroBreweries',
+            'title' : 'Microbreweries',
             'breweries' : [brewery for brewery in all_breweries if brewery.type == 'Micro']
         },
         'pub' : {
@@ -71,7 +71,7 @@ def create_brewery():
             return redirect(f"/breweries/{new_brewery}")
         return redirect('/breweries/new')
 
-@app.route('/breweries/edit/<int:id>', methods=['GET','POST', 'DELETE'])
+@app.route('/breweries/<int:id>/edit', methods=['GET','POST', 'DELETE'])
 def edit_brewery(id):
     current_user = check_user()
     if not current_user:
@@ -80,16 +80,16 @@ def edit_brewery(id):
     if current_user.id != brewery.poster_id:
         return redirect(f"/")
     if request.method == 'GET':
-        return render_template('edit_brewery.html', user=current_user, brewery=brewery)
+        return render_template('edit_brewery.html', user=current_user, brewery=brewery, types=Brewery.BREWERY_TYPES, states=Brewery.STATES)
     elif request.method == 'POST':
         new_info = {
             **request.form,
             'id' : id,
             'poster_id' : current_user.id
         }
-        if not Brewery.validate_create_brewery(new_info):
-            return redirect(f'/breweries/edit/{id}')
         rslt = Brewery.update_brewery(new_info)
+        if rslt is not None:
+            return redirect(f'/breweries/{id}/edit')
         return redirect(f"/breweries/{id}")
     elif request.method == 'DELETE':
         rslt = Brewery.delete_brewery(id)

@@ -33,7 +33,7 @@
                     </li>
                     {% if user %}
                     <li class="nav-item">
-                        <a class="nav-link" href="/users/{{user.id}}/account">Dashboard</a>
+                        <a class="nav-link" href="/users/{{user.id}}/dash">Dashboard</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/users/{{user.id}}/account">Account</a>
@@ -52,6 +52,13 @@
         <div class="p-3 d-flex flex-column align-items-center justify-content-start">
             <div class="container text-center text-light" style="text-shadow: 0 0 1rem white;">
                 <h3 class="display-3">Cheers {% if user %}, {{user.first_name}}{% endif %}!</h3>
+            </div>
+            <div class="container rounded shadow-sm py-3 mb-3 text-light text-center fs-3"
+                style="background-color: rgba(0, 0, 0, 0.411);">
+                <p>Feeling thirsty? Wallet feeling thirsty too? You have come to the right place! At Green Guzzler, we
+                    want to help you find the best brew for your buck. Explore our many user-posted beers and breweries!
+                </p>
+
             </div>
             <div class="container rounded shadow-sm pb-3" style="background-color: rgba(0, 0, 0, 0.411);">
                 <h4 class="display-5 text-center text-light">New Breweries</h4>

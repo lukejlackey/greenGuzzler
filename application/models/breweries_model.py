@@ -14,7 +14,9 @@ class Brewery:
     NAME_LENGTH = 1
     ZIP_MIN = 501
     ZIP_MAX = 99950
+    STATES = {"AL":"Alabama","AK":"Alaska","AZ":"Arizona","AR":"Arkansas","CA":"California","CO":"Colorado","CT":"Connecticut","DE":"Delaware","FL":"Florida","GA":"Georgia","HI":"Hawaii","ID":"Idaho","IL":"Illinois","IN":"Indiana","IA":"Iowa","KS":"Kansas","KY":"Kentucky","LA":"Louisiana","ME":"Maine","MD":"Maryland","MA":"Massachusetts","MI":"Michigan","MN":"Minnesota","MS":"Mississippi","MO":"Missouri","MT":"Montana","NE":"Nebraska","NV":"Nevada","NH":"New Hampshire","NJ":"New Jersey","NM":"New Mexico","NY":"New York","NC":"North Carolina","ND":"North Dakota","OH":"Ohio","OK":"Oklahoma","OR":"Oregon","PA":"Pennsylvania","RI":"Rhode Island","SC":"South Carolina","SD":"South Dakota","TN":"Tennessee","TX":"Texas","UT":"Utah","VT":"Vermont","VA":"Virginia","WA":"Washington","WV":"West Virginia","WI":"Wisconsin","WY":"Wyoming"}
     BREWERY_TYPES = ['Nano', 'Micro', 'Pub', 'Regional', 'Regional Craft', 'Large']
+    
     
     def __init__(self, data) -> None:
         self.id = data['id']
@@ -36,7 +38,6 @@ class Brewery:
     def get_all_breweries(cls):
         query = f"SELECT * FROM {cls.TABLE_NAME} "
         query += f'LEFT JOIN {User.TABLE_NAME} ON {cls.TABLE_NAME}.poster_id = {User.TABLE_NAME}.id '        
-        query += f'LEFT JOIN {cls.MTM_TABLE_NAME} ON {cls.TABLE_NAME}.id = {cls.MTM_TABLE_NAME}.breweries_id '
         query += f'ORDER BY {cls.TABLE_NAME}.id DESC;'
         rslt = connectToMySQL(DATABASE).query_db(query)
         if not rslt:
@@ -44,21 +45,19 @@ class Brewery:
         breweries = [cls(brewery) for brewery in rslt]
         return breweries
 
-    # @classmethod
-    # def get_all_user_breweries(cls, user_id):
-    #     query = f'SELECT {cls.TABLE_NAME}.*, COUNT({cls.MTM_TABLE_NAME}.users_id) AS subcount FROM {cls.TABLE_NAME} '
-    #     query += f'LEFT JOIN {cls.MTM_TABLE_NAME} ON {cls.TABLE_NAME}.id = {cls.MTM_TABLE_NAME}.breweries_id '
-    #     query += f'WHERE user_id = {user_id} '
-    #     query += f'GROUP BY {cls.TABLE_NAME}.id; '
-    #     rslt = connectToMySQL(DATABASE).query_db(query)
-    #     if not rslt:
-    #         return False
-    #     breweries = [cls(brewery) for brewery in rslt]
-    #     return breweries
+    @classmethod
+    def get_all_user_breweries(cls, user_id):
+        query = f'SELECT {cls.TABLE_NAME}.* FROM {cls.TABLE_NAME} '
+        query += f'WHERE poster_id = {user_id};'
+        rslt = connectToMySQL(DATABASE).query_db(query)
+        if not rslt:
+            return False
+        breweries = [cls(brewery) for brewery in rslt]
+        return breweries
 
     @classmethod
     def get_brewery(cls, id):
-        query = f"SELECT {cls.TABLE_NAME}.*, poster.first_name AS poster_first_name, poster.last_name AS poster_last_name, poster.avatar AS poster_avatar, poster.id AS poster_id, {cls.MTM_TABLE_NAME}.users_id AS visitors FROM {cls.TABLE_NAME} "
+        query = f"SELECT {cls.TABLE_NAME}.*, poster.first_name AS poster_first_name, poster.last_name AS poster_last_name, poster.avatar AS poster_avatar, poster.id AS poster_id, COUNT({cls.MTM_TABLE_NAME}.users_id) AS visitors FROM {cls.TABLE_NAME} "
         query += f"LEFT JOIN {User.TABLE_NAME} AS poster ON {cls.TABLE_NAME}.poster_id = poster.id "
         query += f'LEFT JOIN {cls.MTM_TABLE_NAME} ON {cls.TABLE_NAME}.id = {cls.MTM_TABLE_NAME}.breweries_id '
         query += f'LEFT JOIN {User.TABLE_NAME} ON {cls.MTM_TABLE_NAME}.users_id = {User.TABLE_NAME}.id '
@@ -114,11 +113,25 @@ class Brewery:
         query += f'VALUES( {cols} );'
         rslt = connectToMySQL(DATABASE).query_db(query, visit_info)
         return rslt
+    
+    @classmethod
+    def get_all_visited_breweries(cls, user_id):
+        query = f'SELECT {cls.TABLE_NAME}.* FROM {cls.MTM_TABLE_NAME} '
+        query += f'LEFT JOIN {cls.TABLE_NAME} ON {cls.MTM_TABLE_NAME}.breweries_id = {cls.TABLE_NAME}.id '
+        query += f'WHERE users_id = {user_id};'
+        rslt = connectToMySQL(DATABASE).query_db(query)
+        if not rslt:
+            return False
+        breweries = [cls(brewery) for brewery in rslt]
+        return breweries
 
     @classmethod
     def update_brewery(cls, new_info):
+        valid_info = cls.validate_create_brewery(new_info)
+        if not valid_info:
+            return False
         query = f'UPDATE {cls.TABLE_NAME} '
-        cols = ', '.join([f'%({tag})s' for tag in cls.ATTR_TAGS])
+        cols = ', '.join([f'{tag} = %({tag})s' for tag in cls.ATTR_TAGS])
         query += f'SET {cols} '
         query += 'WHERE id = %(id)s;'
         rslt = connectToMySQL(DATABASE).query_db(query, new_info)

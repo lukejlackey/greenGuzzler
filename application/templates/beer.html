@@ -33,7 +33,7 @@
                     </li>
                     {% if user %}
                     <li class="nav-item">
-                        <a class="nav-link" href="/">Dashboard</a>
+                        <a class="nav-link" href="/users/{{user.id}}/dash">Dashboard</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/users/{{user.id}}/account">Account</a>
@@ -125,10 +125,14 @@
                         <div class="d-flex align-items-center justify-content-around">
                             <p class="fs-4 text-center">{{beer.poster_first_name}} {{beer.poster_last_name}}</p>
                             <img src="{{url_for('static', filename='img/avatars/'+ beer.poster_avatar)}}"
-                                class="img-thumbnail"
-                                style="height: 8.75rem; width: 8.75rem; object-fit: cover; border-radius: 50%;" />
+                                class="img-thumbnail" style="width: 50%; object-fit: cover; border-radius: 50%;" />
                         </div>
                     </div>
+                    {% if user.id == beer.poster_id %}
+                    <div class="d-flex w-100 justify-content-center">
+                        <a class="text-light" href="/beers/{{beer.id}}/edit">Edit Beer</a>
+                    </div>
+                    {% endif %}
                 </form>
             </div>
         </div>

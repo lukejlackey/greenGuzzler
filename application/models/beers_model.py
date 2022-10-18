@@ -25,6 +25,8 @@ class Beer:
                 setattr(self, tag, data[tag])
         if 'brewery' in data:
             setattr(self, 'brewery', data['brewery'])
+        if 'poster_id' in data:
+            setattr(self, 'poster_id', data['poster_id'])
         if 'poster_first_name' in data:
             setattr(self, 'poster_first_name', data['poster_first_name'])
         if 'poster_last_name' in data:
@@ -67,21 +69,19 @@ class Beer:
         beers = [cls(beer) for beer in rslt]
         return beers
 
-    # @classmethod
-    # def get_all_user_beers(cls, user_id):
-    #     query = f'SELECT {cls.TABLE_NAME}.*, COUNT({cls.MTM_TABLE_NAME}.users_id) AS subcount FROM {cls.TABLE_NAME} '
-    #     query += f'LEFT JOIN {cls.MTM_TABLE_NAME} ON {cls.TABLE_NAME}.id = {cls.MTM_TABLE_NAME}.beers_id '
-    #     query += f'WHERE user_id = {user_id} '
-    #     query += f'GROUP BY {cls.TABLE_NAME}.id; '
-    #     rslt = connectToMySQL(DATABASE).query_db(query)
-    #     if not rslt:
-    #         return False
-    #     beers = [cls(beer) for beer in rslt]
-    #     return beers
+    @classmethod
+    def get_all_user_beers(cls, user_id):
+        query = f'SELECT {cls.TABLE_NAME}.* FROM {cls.TABLE_NAME} '
+        query += f'WHERE poster_id = {user_id};'
+        rslt = connectToMySQL(DATABASE).query_db(query)
+        if not rslt:
+            return False
+        beers = [cls(beer) for beer in rslt]
+        return beers
 
     @classmethod
     def get_beer(cls, id):
-        query = f"SELECT {cls.TABLE_NAME}.*, {cls.MTO_TABLE_NAME}.id AS brewery_id, {cls.MTO_TABLE_NAME}.name AS brewery, poster.first_name AS poster_first_name, poster.last_name AS poster_last_name, poster.avatar AS poster_avatar, COUNT({cls.MTM_TABLE_NAME}.users_id) AS tasters, AVG(taste) AS taste, AVG(cost) AS cost, AVG(val) AS val FROM {cls.TABLE_NAME} "
+        query = f"SELECT {cls.TABLE_NAME}.*, {cls.MTO_TABLE_NAME}.id AS brewery_id, {cls.MTO_TABLE_NAME}.name AS brewery, poster.id AS poster_id, poster.first_name AS poster_first_name, poster.last_name AS poster_last_name, poster.avatar AS poster_avatar, COUNT({cls.MTM_TABLE_NAME}.users_id) AS tasters, AVG(taste) AS taste, AVG(cost) AS cost, AVG(val) AS val FROM {cls.TABLE_NAME} "
         query += f'LEFT JOIN {cls.MTO_TABLE_NAME} ON {cls.TABLE_NAME}.breweries_id = {cls.MTO_TABLE_NAME}.id '
         query += f"LEFT JOIN {User.TABLE_NAME} AS poster ON {cls.TABLE_NAME}.poster_id = poster.id "
         query += f'LEFT JOIN {cls.MTM_TABLE_NAME} ON {cls.TABLE_NAME}.id = {cls.MTM_TABLE_NAME}.beers_id '
@@ -132,15 +132,29 @@ class Beer:
         query += f'VALUES( {cols} ) '
         query += "ON DUPLICATE KEY UPDATE "
         for tag in cls.MTM_TAGS:
-            if tag is not 'users_id' or tag is not 'beers_id':
-                query += f"{tag} = {rating_info[tag]}{',' if tag is not 'val' else ';'} "
+            if tag != 'users_id' or tag != 'beers_id':
+                query += f"{tag} = {rating_info[tag]}{',' if tag != 'val' else ';'} "
         rslt = connectToMySQL(DATABASE).query_db(query, rating_info)
         return rslt
+    
+    @classmethod
+    def get_all_rated_beers(cls, user_id):
+        query = f'SELECT {cls.TABLE_NAME}.* FROM {cls.MTM_TABLE_NAME} '
+        query += f'LEFT JOIN {cls.TABLE_NAME} ON {cls.MTM_TABLE_NAME}.beers_id = {cls.TABLE_NAME}.id '
+        query += f'WHERE users_id = {user_id};'
+        rslt = connectToMySQL(DATABASE).query_db(query)
+        if not rslt:
+            return False
+        breweries = [cls(brewery) for brewery in rslt]
+        return breweries
 
     @classmethod
     def update_beer(cls, new_info):
+        valid_info = cls.validate_new_beer(new_info)
+        if not valid_info:
+            return False
         query = f'UPDATE {cls.TABLE_NAME} '
-        cols = ', '.join([f'%({tag})s' for tag in cls.ATTR_TAGS])
+        cols = ', '.join([f'{tag} = %({tag})s' for tag in cls.ATTR_TAGS])
         query += f'SET {cols} '
         query += 'WHERE id = %(id)s;'
         rslt = connectToMySQL(DATABASE).query_db(query, new_info)

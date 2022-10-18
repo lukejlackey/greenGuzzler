@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit - {{brewery.name}}</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css')}}">
+</head>
+
+<body>
+    <div class="d-flex flex-column" style="min-height: 100vh;
+    background-image: url({{url_for('static', filename='img/brewery.jpg')}}); 
+    background-size:cover;">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
+            <a class="navbar-brand fs-1 text-light mx-3" href="/">
+                <span class="text-success">G</span>reen
+                <span class="text-success">G</span>uzzler
+            </a>
+            <button class="navbar-toggler bg-success mx-3" type="button" data-toggle="collapse"
+                data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse text-end me-3" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/breweries">Breweries</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/beers">Beers</a>
+                    </li>
+                    {% if user %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/users/{{user.id}}/dash">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/users/{{user.id}}/account">Account</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Logout</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">Login</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+        <div class="p-3 d-flex flex-column align-items-center justify-content-start">
+            <div class="container text-center text-light" style="text-shadow: 0 0 1rem white;">
+                <h3 class="display-3">{{brewery.name}}</h3>
+            </div>
+            <div class="container rounded shadow-sm w-100 bg-light" style="color: #45992e;">
+                <form class="d-flex flex-column justify-content-between h-100" action="/breweries/{{brewery.id}}/edit"
+                    method="POST">
+                    <div>
+                        <h2 class="display-5 text-success">Basic Info</h2>
+                        <div class="form-group">
+                            <label class="form-label" for="name">Name:</label>
+                            <input class="form-control" type="text" name="name" id="name" value="{{brewery.name}}">
+                            {% for msg in get_flashed_messages( category_filter = ['error_update_brewery_name'] ) %}
+                            <p class="text-warning">*{{ msg }}</p>
+                            {% endfor %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="type">Type:</label>
+                            <select class="form-select" name="type" id="type">
+                                {% for type in types %}
+                                <option value="{{loop.index0}}" {{"selected='selected'" if type==brewery.type else ''}}>{{ type }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class=" display-5 text-success">Address</h2>
+                                    <div class="form-group">
+                                        <label class="form-label" for="address">Street Address:</label>
+                                        <input class="form-control" type="text" name="address" id="address"
+                                            value="{{brewery.address}}">
+                                        {% for msg in get_flashed_messages( category_filter =
+                                        ['error_update_brewery_address'] ) %}
+                                        <p class="text-warning">*{{ msg }}</p>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="state">State:</label>
+                                        <select class="form-select" name="state" id="state">
+                                            {% for (abbr, state) in states.items() %}
+                                            <option value="{{abbr}}" {{"selected='selected'" if abbr==brewery.state else ''}}>
+                                    {{state}}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class=" form-group">
+                                                <label class="form-label" for="city">City:</label>
+                                                <input class="form-control" type="text" name="city" id="city"
+                                                    value="{{brewery.city}}">
+                                                {% for msg in get_flashed_messages( category_filter =
+                                                ['error_update_brewery_city']
+                                                ) %}
+                                                <p class="text-warning">*{{ msg }}</p>
+                                                {% endfor %}
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="zip">Zip:</label>
+                                        <input class="form-control" type="number" name="zip" id="zip" maxlength="5"
+                                            step="1" min="00501" max="99950" value="{{brewery.zip}}">
+                                        {% for msg in get_flashed_messages( category_filter =
+                                        ['error_update_brewery_zip'] ) %}
+                                        <p class="text-warning">*{{ msg }}</p>
+                                        {% endfor %}
+                                    </div>
+                        </div>
+                        <div class="container my-3 d-flex justify-content-around align-items-center">
+                            <button class="btn btn-success w-25" type="submit">Save</button>
+                            <a class="btn btn-danger w-25" href="/breweries/{{brewery.id}}/crush">Delete</a>
+                        </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

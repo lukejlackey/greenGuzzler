@@ -15,16 +15,6 @@ def home():
     all_beers = Beer.get_all_beers()
     return render_template('index.html', user=user, breweries=all_breweries, beers=all_beers)
 
-@app.route('/users/<int:id>/dashboard')
-def show_dashboard(id):
-    if 'logged_user' not in session:
-        return redirect('/')
-    if id != session['logged_user']:
-        return redirect('/')
-    current_user = User.get_user(id=id)
-    all_items = Brewery.get_all_breweries()
-    return render_template('dashboard.html', user=current_user, items=all_items)
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if check_user():
@@ -36,7 +26,7 @@ def login():
             new_user = User.create_new_user(request.form)
             if new_user:
                 session['logged_user'] = new_user.id
-                return redirect(f'/users/{new_user.id}/dashboard')
+                return redirect(f'/users/{new_user.id}/dash')
         else:
             user = User.validate_login(request.form)
             if not user:
@@ -46,7 +36,20 @@ def login():
             return redirect('/')
         return redirect('/login')
 
-@app.route('/users/<int:id>/account', methods=['GET', 'PUT'])
+@app.route('/users/<int:id>/dash', methods=['GET'])
+def dash(id):
+    current_user = check_user()
+    if not current_user:
+        return redirect('/login')
+    if id != current_user.id:
+        return redirect('/')
+    posted_breweries = Brewery.get_all_user_breweries(id)
+    posted_beers = Beer.get_all_user_beers(id)
+    visited_breweries = Brewery.get_all_visited_breweries(id)
+    rated_beers = Beer.get_all_rated_beers(id)
+    return render_template('dash.html', user=current_user, posted_breweries=posted_breweries, posted_beers=posted_beers, visited_breweries=visited_breweries, rated_beers=rated_beers)
+    
+@app.route('/users/<int:id>/account', methods=['GET', 'POST'])
 def account(id):
     current_user = check_user()
     if not current_user:
@@ -56,7 +59,9 @@ def account(id):
     if request.method == 'GET':
         return render_template('account.html', user=current_user)
     elif request.method == 'POST':
-        if 'avatar' in request.form:
+        if 'first_name' in request.form:
+            updated_user = User.edit_user(request.form, id)
+        else:
             if 'avatar' not in request.files:
                 flash('No file part', 'error_avatar_msg')
                 return redirect(f'/users/{id}/account')
@@ -69,8 +74,6 @@ def account(id):
                 filepath = os.path.join(app.config['UPLOAD_FOLDER'], f'{id}-{filename}')
                 file.save(filepath)
                 User.edit_avatar(f"'{id}-{filename}'", id)
-        else:
-            updated_user = User.edit_user(request.form, id)
         return redirect(f'/users/{id}/account')
 
 @app.route('/logout')

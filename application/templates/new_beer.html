@@ -26,11 +26,11 @@
             <div class="collapse navbar-collapse text-end me-3" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Breweries</a>
+                        <a class="nav-link" href="/breweries">Breweries</a>
                     </li>
                     {% if user %}
                     <li class="nav-item">
-                        <a class="nav-link" href="/">Dashboard</a>
+                        <a class="nav-link" href="/users/{{user.id}}/dash">Dashboard</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/users/{{user.id}}/account">Account</a>

@@ -77,16 +77,16 @@ def edit_beer(id):
     if current_user.id != beer.poster_id:
         return redirect(f"/")
     if request.method == 'GET':
-        return render_template('edit_beer.html', user=current_user, beer=beer)
+        return render_template('edit_beer.html', user=current_user, beer=beer, breweries=Brewery.get_all_breweries())
     elif request.method == 'POST':
         new_info = {
             **request.form,
             'id' : id,
             'poster_id' : current_user.id
         }
-        if not Beer.validate_new_beer(new_info):
-            return redirect(f'/beers/edit/{id}')
         rslt = Beer.update_beer(new_info)
+        if rslt is not None:
+            return redirect(f'/beers/{id}/edit')
         return redirect(f"/beers/{id}")
     elif request.method == 'DELETE':
         rslt = Beer.delete_beer(id)

@@ -29,10 +29,10 @@
                         <a class="nav-link" href="/">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Beers</a>
+                        <a class="nav-link" href="/breweries">Breweries</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Breweries</a>
+                        <a class="nav-link" href="/beers">Beers</a>
                     </li>
                 </ul>
             </div>
@@ -45,7 +45,7 @@
             <div class="container d-flex gap-4 my-3 align-items-start text-light">
                 <div class="container rounded shadow-sm" style="background-color: rgba(0, 0, 0, 0.411);">
                     <h2 class="display-5 text-light">Register</h2>
-                    <form action="/register" method="POST">
+                    <form action="/login" method="POST">
                         <label class="form-label" for="first_name">First Name:</label>
                         <input class="form-control" type="text" name="first_name" id="first_name">
                         {% for msg in get_flashed_messages( category_filter = ['error_reg_fn'] ) %}
@@ -76,7 +76,7 @@
                 </div>
                 <div class="container rounded shadow-sm" style="background-color: rgba(0, 0, 0, 0.411);">
                     <h2 class="display-5 text-light">Login</h2>
-                    <form action="/login/process" method="POST">
+                    <form action="/login" method="POST">
                         <label class="form-label" for="email">Email:</label>
                         <input class="form-control" type="text" name="email" id="email">
                         {% for msg in get_flashed_messages( category_filter = ['error_login_email'] ) %}

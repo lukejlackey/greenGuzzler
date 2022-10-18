@@ -1,6 +1,6 @@
-q_tables/
-venv/
 
 .env
 
 .log
+
+Pipfile
