@@ -4,3 +4,7 @@
 .log
 
 Pipfile
+
+/node_modules
+
+.serverless
