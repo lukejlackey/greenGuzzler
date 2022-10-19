@@ -2,9 +2,10 @@ from application import app, DATABASE
 from application.config.mysqlconnection import connectToMySQL
 from application.models.model_functions import validate_data
 from flask import flash
-from flask_bcrypt import Bcrypt
+from argon2 import PasswordHasher
 import re
-bcrypt = Bcrypt(app)
+
+ph = PasswordHasher()
 
 class User:
     
@@ -55,7 +56,11 @@ class User:
         if not validate_data(credentials, validations):
             return False
         current_user = cls.get_user(user_data=credentials)
-        if not current_user or not bcrypt.check_password_hash(current_user.password, credentials['password']):
+        if not current_user: 
+            return False
+        try:
+            ph.verify(current_user.password, credentials['password'])
+        except:
             return False
         return current_user
 
@@ -106,7 +111,7 @@ class User:
             return False
         new_user_data = {
             **user_info,
-            'password': bcrypt.generate_password_hash(user_info['password']),
+            'password': ph.hash(user_info['password']),
             'avatar': cls.DEFAULT_AVATAR
         }
         query = f"INSERT INTO {cls.TABLE_NAME}( {', '.join(cls.COLUMN_NAMES)} ) "

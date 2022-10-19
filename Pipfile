@@ -6,11 +6,11 @@ name = "pypi"
 [packages]
 flask = "*"
 pymysql = "*"
-flask-bcrypt = "*"
 flask-cors = "*"
 python-dotenv = "*"
 requests = "*"
 werkzeug = "*"
+argon2-cffi = "*"
 
 [dev-packages]
 
