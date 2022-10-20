@@ -5,13 +5,14 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{url_for('static', filename='img/icon.png')}}">
     <title>New Brewery</title>
     <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css')}}">
 </head>
 
 <body>
     <div class="d-flex flex-column" style="min-height: 100vh;
-    background-image: url(../static/img/brewery.jpg); 
+    background-image: url({{url_for('static', filename='img/brewery.jpg')}}); 
     background-size:cover;">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
             <a class="navbar-brand fs-1 text-light mx-3" href="/">

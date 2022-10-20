@@ -5,12 +5,12 @@ name = "pypi"
 
 [packages]
 flask = "*"
-pymysql = "*"
 flask-cors = "*"
 python-dotenv = "*"
 requests = "*"
 werkzeug = "*"
-argon2-cffi = "*"
+bcrypt = "*"
+pymysql = "*"
 
 [dev-packages]
 

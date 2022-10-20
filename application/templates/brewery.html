@@ -5,13 +5,14 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{url_for('static', filename='img/icon.png')}}">
     <title>{{brewery.name}}</title>
     <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css')}}">
 </head>
 
 <body>
     <div class="d-flex flex-column" style="min-height: 100vh;
-    background-image: url(../static/img/brewery.jpg); 
+    background-image: url({{url_for('static', filename='img/brewery.jpg')}}); 
     background-size:cover;">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
             <a class="navbar-brand fs-1 text-light mx-3" href="/">
@@ -81,7 +82,7 @@
                         </div>
                     </div>
                     <form class="d-flex w-100 justify-content-center" action="/breweries/{{brewery.id}}" method="POST">
-                        <input class="btn btn-success w-50 fs-3" type="submit" value="I Visited!">
+                        <input class="btn btn-success fs-3" type="submit" value="I Visited!">
                     </form>
                     <div class="container rounded shadow-sm pb-3" style="background-color: rgba(0, 0, 0, 0.411);">
                         <h2 class="display-5 text-success">Posted by:</h2>

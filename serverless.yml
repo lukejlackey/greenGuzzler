@@ -1,22 +1,31 @@
+org: lukejlackey
+app: greenguzzler
 	
 service: greenguzzler
- 
+
 provider:
- name: aws
- runtime: python3.9
- stage: dev
- region: us-east-1
- memorySize: 128
+  name: aws
+  runtime: python3.9
+  region: us-east-1
+  memorySize: 128
 plugins:
   - serverless-wsgi
+  - serverless-apigw-binary
   - serverless-python-requirements
 custom:
- wsgi:
-   app: app.app
-   packRequirements: false
+  wsgi:
+    app: app.app
+    packRequirements: false
+  pythonRequirements:
+    dockerizePip: true
+  apigwBinary:
+    types:
+      - 'image/*'
+      - 'image/jpeg'
+      - 'image/png'
 functions:
- app:
-   handler: wsgi_handler.handler
-   events:
-     - http: ANY /
-     - http: 'ANY {proxy+}'
+  app:
+    handler: wsgi_handler.handler
+    events:
+      - http: ANY /
+      - http: 'ANY {proxy+}'
