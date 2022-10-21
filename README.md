@@ -16,28 +16,28 @@ This app follows a standard MVC design pattern. For the backend, I chose the Fla
 
 Home Screen
 
-![alt text](https://github.com/lukejlackey/greenGuzzler/tree/master/readmeImages/home.png?raw=true)
+![alt text](https://github.com/lukejlackey/greenGuzzler/blob/master/readmeImages/home.png?raw=true)
 
 Breweries
 
-![alt text](https://github.com/lukejlackey/greenGuzzler/tree/master/readmeImages/breweries.png?raw=true)
+![alt text](https://github.com/lukejlackey/greenGuzzler/blob/master/readmeImages/breweries.png?raw=true)
 
 Create Brewery
 
-![alt text](https://github.com/lukejlackey/greenGuzzler/tree/master/readmeImages/create.png?raw=true)
+![alt text](https://github.com/lukejlackey/greenGuzzler/blob/master/readmeImages/create.png?raw=true)
 
 View Beer
 
-![alt text](https://github.com/lukejlackey/greenGuzzler/tree/master/readmeImages/beer.png?raw=true)
+![alt text](https://github.com/lukejlackey/greenGuzzler/blob/master/readmeImages/beer.png?raw=true)
 
 View Brewery
 
-![alt text](https://github.com/lukejlackey/greenGuzzler/tree/master/readmeImages/brewery.png?raw=true)
+![alt text](https://github.com/lukejlackey/greenGuzzler/blob/master/readmeImages/brewery.png?raw=true)
 
 User Dashboard
 
-![alt text](https://github.com/lukejlackey/greenGuzzler/tree/master/readmeImages/dash.png?raw=true)
+![alt text](https://github.com/lukejlackey/greenGuzzler/blob/master/readmeImages/dash.png?raw=true)
 
 Login/Register
 
-![alt text](https://github.com/lukejlackey/greenGuzzler/tree/master/readmeImages/login.png?raw=true)
+![alt text](https://github.com/lukejlackey/greenGuzzler/blob/master/readmeImages/login.png?raw=true)
