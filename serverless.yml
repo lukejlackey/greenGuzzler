@@ -18,11 +18,14 @@ custom:
     packRequirements: false
   pythonRequirements:
     dockerizePip: true
+    dockerFile: Dockerfile
+    zip: true
   apigwBinary:
     types:
       - 'image/*'
       - 'image/jpeg'
       - 'image/png'
+      - 'multipart/form-data'
 functions:
   app:
     handler: wsgi_handler.handler

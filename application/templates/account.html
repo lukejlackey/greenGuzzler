@@ -76,8 +76,9 @@
                     <img class="img-thumbnail" src="{{url_for('static', filename='img/avatars/'+ user.avatar)}}"
                         style="width: 100%; object-fit: cover; border-radius: 1rem;" />
                     <form action="/users/{{user.id}}/account" method="POST" enctype=multipart/form-data>
+                        <p class="text-danger">*UPLOAD CURRENTLY DISABLED*</p>
                         <label class="form-label" for="avatar">Upload:</label>
-                        <input class="form-control" type="file" name="avatar" id="avatar">
+                        <input class="form-control" type="file" name="avatar" id="avatar" disabled>
                         {% for msg in get_flashed_messages( category_filter = ['error_update_avatar'] ) %}
                         <p class="text-warning">{{ msg }}</p>
                         {% endfor %}

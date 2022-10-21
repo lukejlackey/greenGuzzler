@@ -1,1 +1,9 @@
-/node_modules/
+.env
+
+.log
+
+.requirements.zip
+
+/node_modules
+
+.serverless
