@@ -6,7 +6,7 @@ Green Guzzler is a Flask app for cost conscious beer lovers to share their favor
 
 [Green Guzzler](https://greenguzzler.link/)
 
-This app was deployed serverlessly on the EDGE as an AWS Lambda function using Serverless Framework.
+This app was deployed serverlessly on the edge as an AWS Lambda function using Serverless Framework.
 
 # Stack Used
 
