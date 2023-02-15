@@ -2,7 +2,6 @@ from application import app, DATABASE
 from application.config.mysqlconnection import connectToMySQL
 from application.models.model_functions import validate_data
 from flask import flash
-import bcrypt
 import re
 
 class User:
@@ -56,9 +55,9 @@ class User:
         current_user = cls.get_user(user_data=credentials)
         if not current_user:
             return False
-        pw = credentials['password'].encode('utf-8')
-        check_pw = current_user.password.encode('utf-8')
-        if not bcrypt.checkpw(pw, check_pw):
+        pw = credentials['password']
+        check_pw = current_user.password
+        if not pw == check_pw:
             return False
         return current_user
 
@@ -109,7 +108,7 @@ class User:
             return False
         new_user_data = {
             **user_info,
-            'password': bcrypt.hashpw(user_info['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
+            'password': user_info['password'],
             'avatar': cls.DEFAULT_AVATAR
         }
         query = f"INSERT INTO {cls.TABLE_NAME}( {', '.join(cls.COLUMN_NAMES)} ) "
