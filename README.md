@@ -1,6 +1,6 @@
 # Green Guzzler
 
-Green Guzzler is a Flask app for cost conscious beer lovers to share their favorite beers. Users may upload their own breweries/beers or explore breweries/beers posted by others. Users can also rate beers based on their taste, cost, and value (i.e. was the beer worth the cost?).
+Green Guzzler is a Flask app for cost-conscious beer lovers to share their favorite beers. Users may upload their own breweries/beers or explore breweries/beers posted by others. Users can also rate beers based on their taste, cost, and value (i.e. was the beer worth the cost?).
 
 # Live Version
 
